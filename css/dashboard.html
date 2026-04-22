@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Biblioteca</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Biblioteca</h2>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="books.html">Livros</a>
+      <a href="readers.html">Leitores</a>
+      <a href="#" onclick="logout()">Sair</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h1>Dashboard</h1>
+        <div class="user-box">
+          <span id="userName"></span>
+          <button class="btn btn-danger" onclick="logout()">Sair</button>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Total de Livros</h3>
+          <div class="value" id="totalLivros">0</div>
+        </div>
+        <div class="card">
+          <h3>Total de Leitores</h3>
+          <div class="value" id="totalLeitores">0</div>
+        </div>
+        <div class="card">
+          <h3>Livros Disponíveis</h3>
+          <div class="value" id="livrosDisponiveis">0</div>
+        </div>
+        <div class="card">
+          <h3>Livros Emprestados</h3>
+          <div class="value" id="livrosEmprestados">0</div>
+        </div>
+        <div class="card">
+          <h3>Atrasados</h3>
+          <div class="value" id="atrasados">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Visão geral do sistema</h3>
+        <p>Este painel mostra o estado actual da biblioteca.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

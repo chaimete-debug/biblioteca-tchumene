@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Biblioteca</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="form-box">
+    <h1>Biblioteca</h1>
+
+    <div id="messageBox"></div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Digite o email">
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Digite a password">
+    </div>
+
+    <button class="btn" style="width:100%;" onclick="handleLogin()">Entrar</button>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    async function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const box = document.getElementById('messageBox');
+
+      box.innerHTML = '';
+
+      const res = await apiPost({
+        action: 'login',
+        email,
+        password
+      });
+
+      if (!res.success) {
+        box.innerHTML = `<div class="message error">${res.message}</div>`;
+        return;
+      }
+
+      saveSession(res.data);
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
