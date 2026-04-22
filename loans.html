@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empréstimos - Biblioteca</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Biblioteca</h2>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="books.html">Livros</a>
+      <a href="readers.html">Leitores</a>
+      <a href="loans.html" class="active">Empréstimos</a>
+      <a href="#" onclick="logout()">Sair</a>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h1>Empréstimos</h1>
+        <div class="user-box">
+          <span id="userName"></span>
+          <button class="btn btn-danger" onclick="logout()">Sair</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Novo Empréstimo</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Livro</label>
+            <select id="idLivro"></select>
+          </div>
+
+          <div class="form-group">
+            <label>Leitor</label>
+            <select id="idLeitor"></select>
+          </div>
+        </div>
+
+        <div id="loanMsg"></div>
+
+        <button class="btn" onclick="submitLoan()">Registar Empréstimo</button>
+      </div>
+
+      <div class="panel">
+        <h3>Empréstimos Activos</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Livro</th>
+                <th>Leitor</th>
+                <th>Data Empréstimo</th>
+                <th>Data Prevista</th>
+                <th>Estado</th>
+                <th>Acção</th>
+              </tr>
+            </thead>
+            <tbody id="loansTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/loans.js"></script>
+</body>
+</html>
