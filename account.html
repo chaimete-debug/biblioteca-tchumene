@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Minha Conta - Biblioteca Tchumene
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
+
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <h2>Biblioteca</h2>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a href="books.html">
+      Livros
+    </a>
+
+    <a href="readers.html">
+      Leitores
+    </a>
+
+    <a href="loans.html">
+      Empréstimos
+    </a>
+
+    <a
+      href="account.html"
+      class="active"
+    >
+      Minha Conta
+    </a>
+
+    <a
+      href="#"
+      onclick="logout()"
+    >
+      Sair
+    </a>
+
+  </aside>
+
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>Minha Conta</h1>
+
+        <p class="page-subtitle">
+          Segurança e credenciais de acesso
+        </p>
+
+      </div>
+
+
+      <div class="user-box">
+
+        <span id="userName"></span>
+
+        <button
+          class="btn btn-danger"
+          onclick="logout()"
+        >
+          Sair
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="panel"
+      style="max-width:650px;"
+    >
+
+      <h3>
+        Alterar Password
+      </h3>
+
+      <p
+        class="muted"
+        style="margin-bottom:20px;"
+      >
+        A nova password ficará protegida
+        através de hash e deixará de ser
+        visível na base de dados.
+      </p>
+
+
+      <div id="accountMsg"></div>
+
+
+      <div class="form-group">
+
+        <label>
+          Password actual
+        </label>
+
+        <input
+          id="currentPassword"
+          type="password"
+          autocomplete="current-password"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          Nova password
+        </label>
+
+        <input
+          id="newPassword"
+          type="password"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          Confirmar nova password
+        </label>
+
+        <input
+          id="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+
+      <button
+        id="changePasswordBtn"
+        class="btn"
+        onclick="handleChangePassword()"
+      >
+        Alterar Password
+      </button>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/account.js"></script>
+
+</body>
+</html>
