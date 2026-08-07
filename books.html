@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -8,17 +10,23 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Livros - Biblioteca Tchumene</title>
+  <title>
+    Livros - Biblioteca Tchumene
+  </title>
 
   <link
     rel="stylesheet"
     href="assets/css/style.css"
   >
+
 </head>
+
 
 <body>
 
+
 <div class="layout">
+
 
   <aside class="sidebar">
 
@@ -43,6 +51,10 @@
       Empréstimos
     </a>
 
+    <a href="account.html">
+      Minha Conta
+    </a>
+
     <a
       href="#"
       onclick="logout()"
@@ -53,17 +65,22 @@
   </aside>
 
 
+
   <main class="main">
+
 
     <div class="topbar">
 
       <div>
+
         <h1>Livros</h1>
 
         <p class="page-subtitle">
-          Obras e exemplares da biblioteca
+          Obras, exemplares e etiquetas QR
         </p>
+
       </div>
+
 
       <div class="user-box">
 
@@ -81,19 +98,29 @@
     </div>
 
 
-    <!-- NOVO REGISTO -->
+
+    <!-- ======================================
+         REGISTO DO LIVRO
+    ======================================= -->
+
 
     <div class="panel">
+
 
       <div class="panel-heading">
 
         <div>
-          <h3>Registar Livro</h3>
+
+          <h3>
+            Registar Livro
+          </h3>
 
           <p class="muted">
             Digitalize o ISBN ou introduza os dados manualmente.
           </p>
+
         </div>
+
 
         <button
           class="btn btn-camera"
@@ -109,6 +136,7 @@
 
 
       <div class="book-entry-layout">
+
 
         <div class="book-cover-box">
 
@@ -128,11 +156,15 @@
         </div>
 
 
+
         <div class="book-form-area">
+
 
           <div class="form-grid">
 
+
             <div class="form-group">
+
               <label>ISBN</label>
 
               <div class="input-with-button">
@@ -152,69 +184,95 @@
                 </button>
 
               </div>
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Título *</label>
 
               <input id="titulo">
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Autor</label>
 
               <input id="autor">
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Categoria</label>
 
               <input
                 id="categoria"
                 placeholder="Ex.: Teologia"
               >
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Editora</label>
 
               <input id="editora">
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Ano</label>
 
               <input
                 id="ano"
                 inputmode="numeric"
               >
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Idioma</label>
 
               <input
                 id="idioma"
                 placeholder="Ex.: pt"
               >
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Edição</label>
 
               <input id="edicao">
+
             </div>
 
 
+
             <div class="form-group">
-              <label>Quantidade de Exemplares *</label>
+
+              <label>
+                Quantidade de Exemplares *
+              </label>
 
               <input
                 id="quantidade"
@@ -223,21 +281,29 @@
                 min="1"
                 max="100"
               >
+
             </div>
 
 
+
             <div class="form-group">
+
               <label>Estante</label>
 
               <input
                 id="estante"
                 placeholder="Ex.: A-03"
               >
+
             </div>
 
 
+
             <div class="form-group">
-              <label>Estado físico</label>
+
+              <label>
+                Estado físico
+              </label>
 
               <select id="estadoFisico">
 
@@ -261,9 +327,11 @@
                 </option>
 
               </select>
+
             </div>
 
           </div>
+
 
 
           <div class="form-group">
@@ -278,10 +346,12 @@
           </div>
 
 
+
           <input
             type="hidden"
             id="capaUrl"
           >
+
 
 
           <div class="form-actions">
@@ -310,18 +380,25 @@
     </div>
 
 
-    <!-- PESQUISA -->
+
+    <!-- ======================================
+         CATÁLOGO DE OBRAS
+    ======================================= -->
+
 
     <div class="panel">
+
 
       <div class="panel-heading">
 
         <div>
-          <h3>Catálogo</h3>
+
+          <h3>Catálogo de Obras</h3>
 
           <p class="muted">
-            Obras registadas na biblioteca.
+            Obras bibliográficas registadas.
           </p>
+
         </div>
 
 
@@ -336,6 +413,7 @@
         </div>
 
       </div>
+
 
 
       <div class="table-wrap">
@@ -356,7 +434,9 @@
 
           </thead>
 
-          <tbody id="worksTable"></tbody>
+
+          <tbody id="worksTable">
+          </tbody>
 
         </table>
 
@@ -364,12 +444,126 @@
 
     </div>
 
+
+
+    <!-- ======================================
+         EXEMPLARES E QR
+    ======================================= -->
+
+
+    <div class="panel">
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Exemplares e Etiquetas QR
+          </h3>
+
+          <p class="muted">
+            Cada exemplar possui um código único para empréstimos e devoluções.
+          </p>
+
+        </div>
+
+
+        <button
+          id="printSelectedBtn"
+          class="btn"
+          onclick="printSelectedLabels()"
+          disabled
+        >
+          🖨️ Imprimir Seleccionados
+        </button>
+
+      </div>
+
+
+
+      <div class="copies-toolbar">
+
+
+        <input
+          id="copiesSearch"
+          class="table-search"
+          placeholder="Pesquisar código, título, ISBN, estante..."
+          oninput="renderCopies()"
+        >
+
+
+        <div class="copies-selection-tools">
+
+          <button
+            class="btn btn-secondary btn-small"
+            onclick="selectAllVisibleCopies()"
+          >
+            Seleccionar Visíveis
+          </button>
+
+          <button
+            class="btn btn-secondary btn-small"
+            onclick="clearCopySelection()"
+          >
+            Limpar Selecção
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th class="checkbox-column">
+                <input
+                  type="checkbox"
+                  id="masterCopyCheckbox"
+                  onchange="toggleAllCopies(this.checked)"
+                >
+              </th>
+
+              <th>Código</th>
+              <th>Livro</th>
+              <th>ISBN</th>
+              <th>Estante</th>
+              <th>Estado</th>
+              <th>Situação</th>
+              <th>QR / Etiqueta</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="copiesTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
   </main>
 
 </div>
 
 
-<!-- MODAL SCANNER -->
+
+<!-- ======================================
+     MODAL SCANNER ISBN
+======================================= -->
+
 
 <div
   id="scannerModal"
@@ -378,15 +572,21 @@
 
   <div class="modal-card scanner-card">
 
+
     <div class="modal-header">
 
       <div>
-        <h3>Digitalizar ISBN</h3>
+
+        <h3>
+          Digitalizar ISBN
+        </h3>
 
         <p class="muted">
           Aponte a câmara para o código de barras do livro.
         </p>
+
       </div>
+
 
       <button
         class="modal-close"
@@ -398,14 +598,15 @@
     </div>
 
 
-    <div id="reader"></div>
+    <div id="reader">
+    </div>
 
 
     <div class="scanner-help">
 
       <p>
-        Se a câmara não conseguir ler o código,
-        feche esta janela e introduza o ISBN manualmente.
+        Se a leitura não funcionar,
+        introduza o ISBN manualmente.
       </p>
 
     </div>
@@ -415,15 +616,118 @@
 </div>
 
 
-<!-- Leitor QR/Barcode -->
+
+<!-- ======================================
+     MODAL QR DO EXEMPLAR
+======================================= -->
+
+
+<div
+  id="qrModal"
+  class="modal-overlay hidden"
+>
+
+  <div class="modal-card qr-modal-card">
+
+
+    <div class="modal-header">
+
+      <div>
+
+        <h3>
+          Etiqueta do Exemplar
+        </h3>
+
+        <p class="muted">
+          Este QR pode ser lido na área de Empréstimos.
+        </p>
+
+      </div>
+
+
+      <button
+        class="modal-close"
+        onclick="closeQrModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+
+    <div
+      id="qrLabelPreview"
+      class="qr-label-preview"
+    >
+
+      <div class="qr-library-name">
+        Biblioteca Tchumene
+      </div>
+
+      <div id="qrCanvasBox">
+      </div>
+
+      <div
+        id="qrCopyCode"
+        class="qr-copy-code"
+      >
+      </div>
+
+      <div
+        id="qrBookTitle"
+        class="qr-book-title"
+      >
+      </div>
+
+    </div>
+
+
+
+    <div class="form-actions qr-actions">
+
+      <button
+        class="btn"
+        onclick="printCurrentLabel()"
+      >
+        🖨️ Imprimir Etiqueta
+      </button>
+
+      <button
+        class="btn btn-secondary"
+        onclick="closeQrModal()"
+      >
+        Fechar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- Scanner de códigos -->
+
 <script
   src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
 ></script>
+
+
+<!-- Gerador de QR -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"
+></script>
+
 
 <script src="assets/js/config.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/books.js"></script>
 
+
 </body>
+
 </html>
