@@ -1,113 +1,268 @@
-function getStoredSessionForApi_() {
+const SESSION_KEY = 'biblioteca_session';
+
+
+function saveSession(session) {
+  if (!session) {
+    return;
+  }
+
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify(session)
+  );
+}
+
+
+function getSession() {
   try {
-    return JSON.parse(
+    const value =
       localStorage.getItem(
-        'biblioteca_session'
-      ) || 'null'
-    );
+        SESSION_KEY
+      );
+
+    if (!value) {
+      return null;
+    }
+
+    return JSON.parse(value);
+
   } catch (err) {
     return null;
   }
 }
 
 
-function getSessionTokenForApi_() {
-  const session =
-    getStoredSessionForApi_();
-
-  return session &&
-    session.token
-      ? session.token
-      : '';
+function clearSession() {
+  localStorage.removeItem(
+    SESSION_KEY
+  );
 }
 
 
-async function apiGet(
-  action,
-  params = {}
-) {
-  const url =
-    new URL(API_URL);
-
-  url.searchParams.set(
-    'action',
-    action
-  );
-
-  const token =
-    getSessionTokenForApi_();
-
-  if (token) {
-    url.searchParams.set(
-      'token',
-      token
+function normalizeClientProfile_(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(
+      /[\u0300-\u036f]/g,
+      ''
     );
+}
+
+
+function isAdminSession_(session) {
+  if (!session) {
+    return false;
   }
 
-  Object.entries(
-    params || {}
-  ).forEach(
-    ([key, value]) => {
-      if (
-        value !== undefined &&
-        value !== null
-      ) {
-        url.searchParams.set(
-          key,
-          value
-        );
-      }
-    }
-  );
-
-  const response =
-    await fetch(
-      url.toString(),
-      {
-        method: 'GET',
-        cache: 'no-store'
-      }
+  const profile =
+    normalizeClientProfile_(
+      session.perfil
     );
 
-  return response.json();
+  return (
+    profile === 'administrador' ||
+    profile === 'admin'
+  );
 }
 
 
-async function apiPost(
-  payload = {}
-) {
-  const token =
-    getSessionTokenForApi_();
+function isLibrarianSession_(session) {
+  if (!session) {
+    return false;
+  }
 
-  const body = {
-    ...payload
-  };
+  const profile =
+    normalizeClientProfile_(
+      session.perfil
+    );
+
+  return (
+    profile === 'bibliotecario' ||
+    profile === 'bibliotecaria'
+  );
+}
+
+
+function isConsultationSession_(session) {
+  if (!session) {
+    return false;
+  }
+
+  const profile =
+    normalizeClientProfile_(
+      session.perfil
+    );
+
+  return (
+    profile === 'consulta' ||
+    profile === 'visualizador'
+  );
+}
+
+
+function requireAuth() {
+  const session =
+    getSession();
 
   if (
-    token &&
-    !body.token
+    !session ||
+    !session.token
   ) {
-    body.token =
-      token;
+
+    clearSession();
+
+    window.location.href =
+      'index.html';
+
+    return null;
   }
 
-  const response =
-    await fetch(
-      API_URL,
-      {
-        method: 'POST',
+  applyRoleNavigation_(
+    session
+  );
 
-        headers: {
-          'Content-Type':
-            'text/plain;charset=utf-8'
-        },
+  return session;
+}
 
-        body:
-          JSON.stringify(
-            body
-          )
-      }
+
+function requireAdmin() {
+  const session =
+    requireAuth();
+
+  if (!session) {
+    return null;
+  }
+
+  if (
+    !isAdminSession_(
+      session
+    )
+  ) {
+
+    window.location.href =
+      'dashboard.html';
+
+    return null;
+  }
+
+  return session;
+}
+
+
+function applyRoleNavigation_(session) {
+  if (
+    !isAdminSession_(
+      session
+    )
+  ) {
+    return;
+  }
+
+  const sidebar =
+    document.querySelector(
+      '.sidebar'
     );
 
-  return response.json();
+  if (!sidebar) {
+    return;
+  }
+
+  if (
+    sidebar.querySelector(
+      '[data-admin-menu]'
+    )
+  ) {
+    return;
+  }
+
+  const link =
+    document.createElement(
+      'a'
+    );
+
+  link.href =
+    'admin.html';
+
+  link.textContent =
+    'Administração';
+
+  link.setAttribute(
+    'data-admin-menu',
+    '1'
+  );
+
+  if (
+    window.location.pathname
+      .endsWith(
+        '/admin.html'
+      )
+  ) {
+
+    link.classList.add(
+      'active'
+    );
+  }
+
+  const links =
+    Array.from(
+      sidebar.querySelectorAll(
+        'a'
+      )
+    );
+
+  const logoutLink =
+    links.find(
+      item =>
+        item.textContent
+          .trim()
+          .toLowerCase()
+        === 'sair'
+    );
+
+  if (logoutLink) {
+
+    sidebar.insertBefore(
+      link,
+      logoutLink
+    );
+
+  } else {
+
+    sidebar.appendChild(
+      link
+    );
+  }
+}
+
+
+async function logout() {
+  const session =
+    getSession();
+
+  try {
+
+    if (
+      session &&
+      session.token &&
+      typeof apiPost === 'function'
+    ) {
+
+      await apiPost({
+        action: 'logout'
+      });
+    }
+
+  } catch (err) {
+    /*
+     * Mesmo que o backend não responda,
+     * encerramos a sessão local.
+     */
+  }
+
+  clearSession();
+
+  window.location.href =
+    'index.html';
 }
