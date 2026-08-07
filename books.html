@@ -2,7 +2,6 @@
 <html lang="pt">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -10,23 +9,17 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>
-    Livros - Biblioteca Tchumene
-  </title>
+  <title>Livros - Biblioteca Tchumene</title>
 
   <link
     rel="stylesheet"
     href="assets/css/style.css"
   >
-
 </head>
-
 
 <body>
 
-
 <div class="layout">
-
 
   <aside class="sidebar">
 
@@ -65,22 +58,17 @@
   </aside>
 
 
-
   <main class="main">
-
 
     <div class="topbar">
 
       <div>
-
         <h1>Livros</h1>
 
         <p class="page-subtitle">
           Obras, exemplares e etiquetas QR
         </p>
-
       </div>
-
 
       <div class="user-box">
 
@@ -98,29 +86,19 @@
     </div>
 
 
-
-    <!-- ======================================
-         REGISTO DO LIVRO
-    ======================================= -->
-
+    <!-- REGISTO DO LIVRO -->
 
     <div class="panel">
-
 
       <div class="panel-heading">
 
         <div>
-
-          <h3>
-            Registar Livro
-          </h3>
+          <h3>Registar Livro</h3>
 
           <p class="muted">
             Digitalize o ISBN ou introduza os dados manualmente.
           </p>
-
         </div>
-
 
         <button
           class="btn btn-camera"
@@ -131,12 +109,9 @@
 
       </div>
 
-
       <div id="bookMsg"></div>
 
-
       <div class="book-entry-layout">
-
 
         <div class="book-cover-box">
 
@@ -155,13 +130,9 @@
 
         </div>
 
-
-
         <div class="book-form-area">
 
-
           <div class="form-grid">
-
 
             <div class="form-group">
 
@@ -187,8 +158,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Título *</label>
@@ -197,8 +166,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Autor</label>
@@ -206,8 +173,6 @@
               <input id="autor">
 
             </div>
-
-
 
             <div class="form-group">
 
@@ -220,8 +185,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Editora</label>
@@ -229,8 +192,6 @@
               <input id="editora">
 
             </div>
-
-
 
             <div class="form-group">
 
@@ -243,8 +204,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Idioma</label>
@@ -256,8 +215,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Edição</label>
@@ -265,8 +222,6 @@
               <input id="edicao">
 
             </div>
-
-
 
             <div class="form-group">
 
@@ -284,8 +239,6 @@
 
             </div>
 
-
-
             <div class="form-group">
 
               <label>Estante</label>
@@ -296,8 +249,6 @@
               >
 
             </div>
-
-
 
             <div class="form-group">
 
@@ -332,8 +283,6 @@
 
           </div>
 
-
-
           <div class="form-group">
 
             <label>Descrição</label>
@@ -345,14 +294,10 @@
 
           </div>
 
-
-
           <input
             type="hidden"
             id="capaUrl"
           >
-
-
 
           <div class="form-actions">
 
@@ -380,27 +325,19 @@
     </div>
 
 
-
-    <!-- ======================================
-         CATÁLOGO DE OBRAS
-    ======================================= -->
-
+    <!-- CATÁLOGO -->
 
     <div class="panel">
-
 
       <div class="panel-heading">
 
         <div>
-
           <h3>Catálogo de Obras</h3>
 
           <p class="muted">
             Obras bibliográficas registadas.
           </p>
-
         </div>
-
 
         <div class="catalog-search">
 
@@ -414,14 +351,11 @@
 
       </div>
 
-
-
       <div class="table-wrap">
 
         <table>
 
           <thead>
-
             <tr>
               <th>Capa</th>
               <th>ISBN</th>
@@ -431,12 +365,9 @@
               <th>Exemplares</th>
               <th>Disponíveis</th>
             </tr>
-
           </thead>
 
-
-          <tbody id="worksTable">
-          </tbody>
+          <tbody id="worksTable"></tbody>
 
         </table>
 
@@ -445,29 +376,19 @@
     </div>
 
 
-
-    <!-- ======================================
-         EXEMPLARES E QR
-    ======================================= -->
-
+    <!-- EXEMPLARES -->
 
     <div class="panel">
-
 
       <div class="panel-heading">
 
         <div>
-
-          <h3>
-            Exemplares e Etiquetas QR
-          </h3>
+          <h3>Exemplares e Etiquetas QR</h3>
 
           <p class="muted">
             Cada exemplar possui um código único para empréstimos e devoluções.
           </p>
-
         </div>
-
 
         <button
           id="printSelectedBtn"
@@ -480,10 +401,7 @@
 
       </div>
 
-
-
       <div class="copies-toolbar">
-
 
         <input
           id="copiesSearch"
@@ -491,7 +409,6 @@
           placeholder="Pesquisar código, título, ISBN, estante..."
           oninput="renderCopies()"
         >
-
 
         <div class="copies-selection-tools">
 
@@ -512,8 +429,6 @@
         </div>
 
       </div>
-
-
 
       <div class="table-wrap">
 
@@ -543,9 +458,7 @@
 
           </thead>
 
-
-          <tbody id="copiesTable">
-          </tbody>
+          <tbody id="copiesTable"></tbody>
 
         </table>
 
@@ -553,17 +466,12 @@
 
     </div>
 
-
   </main>
 
 </div>
 
 
-
-<!-- ======================================
-     MODAL SCANNER ISBN
-======================================= -->
-
+<!-- SCANNER ISBN -->
 
 <div
   id="scannerModal"
@@ -572,21 +480,15 @@
 
   <div class="modal-card scanner-card">
 
-
     <div class="modal-header">
 
       <div>
-
-        <h3>
-          Digitalizar ISBN
-        </h3>
+        <h3>Digitalizar ISBN</h3>
 
         <p class="muted">
           Aponte a câmara para o código de barras do livro.
         </p>
-
       </div>
-
 
       <button
         class="modal-close"
@@ -597,10 +499,7 @@
 
     </div>
 
-
-    <div id="reader">
-    </div>
-
+    <div id="reader"></div>
 
     <div class="scanner-help">
 
@@ -616,11 +515,7 @@
 </div>
 
 
-
-<!-- ======================================
-     MODAL QR DO EXEMPLAR
-======================================= -->
-
+<!-- MODAL QR -->
 
 <div
   id="qrModal"
@@ -629,21 +524,15 @@
 
   <div class="modal-card qr-modal-card">
 
-
     <div class="modal-header">
 
       <div>
-
-        <h3>
-          Etiqueta do Exemplar
-        </h3>
+        <h3>Etiqueta do Exemplar</h3>
 
         <p class="muted">
           Este QR pode ser lido na área de Empréstimos.
         </p>
-
       </div>
-
 
       <button
         class="modal-close"
@@ -654,8 +543,6 @@
 
     </div>
 
-
-
     <div
       id="qrLabelPreview"
       class="qr-label-preview"
@@ -665,24 +552,19 @@
         Biblioteca Tchumene
       </div>
 
-      <div id="qrCanvasBox">
-      </div>
+      <div id="qrCanvasBox"></div>
 
       <div
         id="qrCopyCode"
         class="qr-copy-code"
-      >
-      </div>
+      ></div>
 
       <div
         id="qrBookTitle"
         class="qr-book-title"
-      >
-      </div>
+      ></div>
 
     </div>
-
-
 
     <div class="form-actions qr-actions">
 
@@ -707,18 +589,17 @@
 </div>
 
 
-
-<!-- Scanner de códigos -->
+<!-- Scanner ISBN -->
 
 <script
   src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
 ></script>
 
 
-<!-- Gerador de QR -->
+<!-- QRCode.js -->
 
 <script
-  src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"
+  src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"
 ></script>
 
 
@@ -726,7 +607,6 @@
 <script src="assets/js/api.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/books.js"></script>
-
 
 </body>
 
