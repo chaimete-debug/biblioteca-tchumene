@@ -1,0 +1,32 @@
+{
+  "name": "Biblioteca Tchumene",
+  "short_name": "Biblioteca",
+  "description": "Sistema de gestão da Biblioteca Tchumene",
+  "id": "/",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0f172a",
+  "lang": "pt",
+  "categories": [
+    "education",
+    "books",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
