@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f172a"
+  >
+
+  <title>
+    Produtividade - Biblioteca Tchumene
+  </title>
+
+  <link
+    rel="manifest"
+    href="/manifest.webmanifest"
+  >
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
+
+
+  <style>
+
+    .productivity-filter {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+
+    .productivity-filter .form-group {
+      margin: 0;
+      min-width: 190px;
+    }
+
+
+    .productivity-ranking {
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background: #e2e8f0;
+
+      font-weight: 700;
+    }
+
+
+    .productivity-name {
+      font-weight: 700;
+    }
+
+
+    .productivity-email {
+      display: block;
+
+      margin-top: 3px;
+
+      color: #64748b;
+
+      font-size: 12px;
+    }
+
+
+    .productivity-big {
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+
+    @media (max-width: 650px) {
+
+      .productivity-filter {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+
+      .productivity-filter .form-group {
+        width: 100%;
+      }
+
+
+      .productivity-filter .btn {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+      <div class="sidebar-brand-icon">
+        📚
+      </div>
+
+      <div>
+
+        <h2>
+          Biblioteca
+        </h2>
+
+        <small>
+          Tchumene
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a href="books.html">
+      Livros
+    </a>
+
+    <a href="readers.html">
+      Leitores
+    </a>
+
+    <a href="loans.html">
+      Empréstimos
+    </a>
+
+    <a
+      href="reports.html"
+      data-reports-menu="1"
+    >
+      Relatórios
+    </a>
+
+    <a
+      href="productivity.html"
+      class="active"
+      data-productivity-menu="1"
+    >
+      Produtividade
+    </a>
+
+    <a href="account.html">
+      Minha Conta
+    </a>
+
+    <a
+      href="admin.html"
+      data-admin-menu="1"
+    >
+      Administração
+    </a>
+
+    <a
+      href="#"
+      onclick="logout()"
+    >
+      Sair
+    </a>
+
+  </aside>
+
+
+
+  <main class="main">
+
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Produtividade do Registo
+        </h1>
+
+        <p class="page-subtitle">
+          Acompanhamento diário da catalogação do acervo
+        </p>
+
+      </div>
+
+
+      <div class="user-box">
+
+        <span id="userName"></span>
+
+        <button
+          class="btn btn-danger"
+          onclick="logout()"
+        >
+          Sair
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <div id="productivityMsg"></div>
+
+
+
+    <!-- FILTRO -->
+
+
+    <div class="panel">
+
+      <div class="productivity-filter">
+
+
+        <div class="form-group">
+
+          <label>
+            Dia do registo
+          </label>
+
+          <input
+            type="date"
+            id="productivityDate"
+          >
+
+        </div>
+
+
+        <button
+          class="btn"
+          onclick="loadProductivity()"
+        >
+          Actualizar
+        </button>
+
+
+        <button
+          class="btn btn-secondary"
+          onclick="setTodayProductivity()"
+        >
+          Hoje
+        </button>
+
+
+      </div>
+
+    </div>
+
+
+
+    <!-- RESUMO -->
+
+
+    <div class="cards">
+
+
+      <div class="card">
+
+        <h3>
+          Registadores Activos
+        </h3>
+
+        <div
+          class="value"
+          id="productivityUsers"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Obras Registadas
+        </h3>
+
+        <div
+          class="value"
+          id="productivityWorks"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Exemplares Registados
+        </h3>
+
+        <div
+          class="value"
+          id="productivityCopies"
+        >
+          0
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- TABELA -->
+
+
+    <div class="panel">
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Registo por Utilizador
+          </h3>
+
+          <p
+            class="muted"
+            id="productivityPeriod"
+          >
+          </p>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                #
+              </th>
+
+              <th>
+                Registador
+              </th>
+
+              <th>
+                Obras
+              </th>
+
+              <th>
+                Exemplares
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="productivityTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+    </div>
+
+
+  </main>
+
+
+</div>
+
+
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/productivity.js"></script>
+<script src="assets/js/pwa.js"></script>
+
+
+</body>
+
+</html>
