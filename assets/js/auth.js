@@ -3,6 +3,7 @@ const SESSION_KEY =
 
 
 function saveSession(session) {
+
   if (!session) {
     return;
   }
@@ -15,7 +16,9 @@ function saveSession(session) {
 
 
 function getSession() {
+
   try {
+
     const value =
       localStorage.getItem(
         SESSION_KEY
@@ -25,22 +28,29 @@ function getSession() {
       return null;
     }
 
-    return JSON.parse(value);
+    return JSON.parse(
+      value
+    );
 
   } catch (err) {
+
     return null;
   }
 }
 
 
 function clearSession() {
+
   localStorage.removeItem(
     SESSION_KEY
   );
 }
 
 
-function normalizeClientProfile_(value) {
+function normalizeClientProfile_(
+  value
+) {
+
   return String(value || '')
     .trim()
     .toLowerCase()
@@ -52,7 +62,10 @@ function normalizeClientProfile_(value) {
 }
 
 
-function isAdminSession_(session) {
+function isAdminSession_(
+  session
+) {
+
   if (!session) {
     return false;
   }
@@ -63,14 +76,54 @@ function isAdminSession_(session) {
     );
 
   return (
-    profile ===
-      'administrador' ||
-    profile === 'admin'
+    profile === 'admin' ||
+    profile === 'administrador'
+  );
+}
+
+
+function isLibrarianSession_(
+  session
+) {
+
+  if (!session) {
+    return false;
+  }
+
+  const profile =
+    normalizeClientProfile_(
+      session.perfil
+    );
+
+  return (
+    profile === 'bibliotecario' ||
+    profile === 'bibliotecaria'
+  );
+}
+
+
+function isConsultationSession_(
+  session
+) {
+
+  if (!session) {
+    return false;
+  }
+
+  const profile =
+    normalizeClientProfile_(
+      session.perfil
+    );
+
+  return (
+    profile === 'consulta' ||
+    profile === 'visualizador'
   );
 }
 
 
 function requireAuth() {
+
   const session =
     getSession();
 
@@ -78,6 +131,7 @@ function requireAuth() {
     !session ||
     !session.token
   ) {
+
     clearSession();
 
     window.location.href =
@@ -85,6 +139,7 @@ function requireAuth() {
 
     return null;
   }
+
 
   applyRoleNavigation_(
     session
@@ -95,6 +150,7 @@ function requireAuth() {
 
 
 function requireAdmin() {
+
   const session =
     requireAuth();
 
@@ -102,22 +158,34 @@ function requireAdmin() {
     return null;
   }
 
+
   if (
     !isAdminSession_(
       session
     )
   ) {
+
     window.location.href =
       'dashboard.html';
 
     return null;
   }
 
+
   return session;
 }
 
 
-function applyRoleNavigation_(session) {
+
+/* ============================================================
+   MENU DINÂMICO
+============================================================ */
+
+
+function applyRoleNavigation_(
+  session
+) {
+
   const sidebar =
     document.querySelector(
       '.sidebar'
@@ -128,147 +196,374 @@ function applyRoleNavigation_(session) {
   }
 
 
-  /* RELATÓRIOS */
+  ensureReportsMenu_(
+    sidebar
+  );
 
-  if (
-    !sidebar.querySelector(
-      '[data-reports-menu]'
-    )
-  ) {
-    const reports =
-      document.createElement(
-        'a'
-      );
-
-    reports.href =
-      'reports.html';
-
-    reports.textContent =
-      'Relatórios';
-
-    reports.setAttribute(
-      'data-reports-menu',
-      '1'
-    );
-
-    if (
-      window.location.pathname
-        .endsWith(
-          '/reports.html'
-        )
-    ) {
-      reports.classList.add(
-        'active'
-      );
-    }
-
-    const accountLink =
-      [...sidebar.querySelectorAll(
-        'a'
-      )]
-      .find(
-        item =>
-          item.textContent
-            .trim()
-            .toLowerCase()
-          === 'minha conta'
-      );
-
-    if (accountLink) {
-      sidebar.insertBefore(
-        reports,
-        accountLink
-      );
-    } else {
-      sidebar.appendChild(
-        reports
-      );
-    }
-  }
-
-
-  /* ADMINISTRAÇÃO */
 
   if (
     isAdminSession_(
       session
-    ) &&
-    !sidebar.querySelector(
-      '[data-admin-menu]'
     )
   ) {
-    const admin =
-      document.createElement(
-        'a'
-      );
 
-    admin.href =
-      'admin.html';
-
-    admin.textContent =
-      'Administração';
-
-    admin.setAttribute(
-      'data-admin-menu',
-      '1'
+    ensureProductivityMenu_(
+      sidebar
     );
 
-    if (
-      window.location.pathname
-        .endsWith(
-          '/admin.html'
-        )
-    ) {
-      admin.classList.add(
-        'active'
-      );
-    }
+    ensureAdminMenu_(
+      sidebar
+    );
 
-    const logoutLink =
-      [...sidebar.querySelectorAll(
-        'a'
-      )]
-      .find(
-        item =>
-          item.textContent
-            .trim()
-            .toLowerCase()
-          === 'sair'
-      );
+  } else {
 
-    if (logoutLink) {
-      sidebar.insertBefore(
-        admin,
-        logoutLink
-      );
-    } else {
-      sidebar.appendChild(
-        admin
-      );
-    }
+    removeAdminOnlyMenus_(
+      sidebar
+    );
   }
 }
 
 
+
+/* ============================================================
+   RELATÓRIOS
+   Todos os utilizadores autenticados
+============================================================ */
+
+
+function ensureReportsMenu_(
+  sidebar
+) {
+
+  let link =
+    sidebar.querySelector(
+      '[data-reports-menu]'
+    );
+
+
+  if (!link) {
+
+    link =
+      document.createElement(
+        'a'
+      );
+
+    link.href =
+      'reports.html';
+
+    link.textContent =
+      'Relatórios';
+
+    link.setAttribute(
+      'data-reports-menu',
+      '1'
+    );
+
+
+    const accountLink =
+      findSidebarLinkByText_(
+        sidebar,
+        'minha conta'
+      );
+
+
+    if (accountLink) {
+
+      sidebar.insertBefore(
+        link,
+        accountLink
+      );
+
+    } else {
+
+      sidebar.appendChild(
+        link
+      );
+    }
+  }
+
+
+  setActiveMenu_(
+    link,
+    'reports.html'
+  );
+}
+
+
+
+/* ============================================================
+   PRODUTIVIDADE
+   Apenas Administrador
+============================================================ */
+
+
+function ensureProductivityMenu_(
+  sidebar
+) {
+
+  let link =
+    sidebar.querySelector(
+      '[data-productivity-menu]'
+    );
+
+
+  if (!link) {
+
+    link =
+      document.createElement(
+        'a'
+      );
+
+    link.href =
+      'productivity.html';
+
+    link.textContent =
+      'Produtividade';
+
+    link.setAttribute(
+      'data-productivity-menu',
+      '1'
+    );
+
+
+    const accountLink =
+      findSidebarLinkByText_(
+        sidebar,
+        'minha conta'
+      );
+
+
+    if (accountLink) {
+
+      sidebar.insertBefore(
+        link,
+        accountLink
+      );
+
+    } else {
+
+      sidebar.appendChild(
+        link
+      );
+    }
+  }
+
+
+  setActiveMenu_(
+    link,
+    'productivity.html'
+  );
+}
+
+
+
+/* ============================================================
+   ADMINISTRAÇÃO
+   Apenas Administrador
+============================================================ */
+
+
+function ensureAdminMenu_(
+  sidebar
+) {
+
+  let link =
+    sidebar.querySelector(
+      '[data-admin-menu]'
+    );
+
+
+  if (!link) {
+
+    link =
+      document.createElement(
+        'a'
+      );
+
+    link.href =
+      'admin.html';
+
+    link.textContent =
+      'Administração';
+
+    link.setAttribute(
+      'data-admin-menu',
+      '1'
+    );
+
+
+    const logoutLink =
+      findSidebarLinkByText_(
+        sidebar,
+        'sair'
+      );
+
+
+    if (logoutLink) {
+
+      sidebar.insertBefore(
+        link,
+        logoutLink
+      );
+
+    } else {
+
+      sidebar.appendChild(
+        link
+      );
+    }
+  }
+
+
+  setActiveMenu_(
+    link,
+    'admin.html'
+  );
+}
+
+
+
+/* ============================================================
+   REMOVER MENUS ADMIN
+============================================================ */
+
+
+function removeAdminOnlyMenus_(
+  sidebar
+) {
+
+  const productivity =
+    sidebar.querySelector(
+      '[data-productivity-menu]'
+    );
+
+
+  const admin =
+    sidebar.querySelector(
+      '[data-admin-menu]'
+    );
+
+
+  if (productivity) {
+
+    productivity.remove();
+  }
+
+
+  if (admin) {
+
+    admin.remove();
+  }
+}
+
+
+
+/* ============================================================
+   HELPERS DO MENU
+============================================================ */
+
+
+function findSidebarLinkByText_(
+  sidebar,
+  text
+) {
+
+  const expected =
+    String(text || '')
+      .trim()
+      .toLowerCase();
+
+
+  return Array
+    .from(
+      sidebar.querySelectorAll(
+        'a'
+      )
+    )
+    .find(
+      item =>
+        item.textContent
+          .trim()
+          .toLowerCase()
+        === expected
+    ) || null;
+}
+
+
+function setActiveMenu_(
+  link,
+  page
+) {
+
+  if (!link) {
+    return;
+  }
+
+
+  const path =
+    window.location.pathname
+      .toLowerCase();
+
+
+  if (
+    path.endsWith(
+      '/' + page.toLowerCase()
+    ) ||
+    path.endsWith(
+      page.toLowerCase()
+    )
+  ) {
+
+    link.classList.add(
+      'active'
+    );
+
+  } else {
+
+    link.classList.remove(
+      'active'
+    );
+  }
+}
+
+
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+
 async function logout() {
+
   const session =
     getSession();
 
+
   try {
+
     if (
       session &&
       session.token &&
-      typeof apiPost ===
-        'function'
+      typeof apiPost === 'function'
     ) {
+
       await apiPost({
         action:
           'logout'
       });
     }
-  } catch (err) {}
+
+  } catch (err) {
+
+    /*
+     * Mesmo que o servidor esteja indisponível,
+     * eliminamos a sessão local.
+     */
+  }
+
 
   clearSession();
+
 
   window.location.href =
     'index.html';
