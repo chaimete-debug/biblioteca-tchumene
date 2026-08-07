@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt">
 
 <head>
@@ -32,18 +31,28 @@
 
   <style>
 
+    /* =====================================
+       ADMINISTRAÇÃO
+    ====================================== */
+
     .admin-section {
       margin-bottom: 28px;
     }
 
+    .admin-title {
+      margin-bottom: 18px;
+    }
+
     .admin-grid {
       display: grid;
+
       grid-template-columns:
-        repeat(
-          auto-fit,
-          minmax(260px, 1fr)
-        );
+        minmax(280px, 0.85fr)
+        minmax(0, 1.65fr);
+
       gap: 18px;
+
+      align-items: start;
     }
 
     .admin-form-card {
@@ -51,20 +60,231 @@
       border-radius: 12px;
       padding: 18px;
       background: #f8fafc;
+      min-width: 0;
     }
 
     .admin-form-card h4 {
       margin-bottom: 15px;
     }
 
-    .admin-action-group {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+    .admin-table-card {
+      min-width: 0;
+      overflow: hidden;
     }
 
-    .admin-title {
-      margin-bottom: 16px;
+    .admin-action-group {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+
+    /* =====================================
+       TABELA DE UTILIZADORES
+    ====================================== */
+
+    .admin-users-table {
+      table-layout: fixed;
+      width: 100%;
+      margin-top: 0;
+    }
+
+    .admin-users-table th,
+    .admin-users-table td {
+      padding: 10px 8px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      vertical-align: middle;
+    }
+
+    .admin-users-table th:nth-child(1) {
+      width: 18%;
+    }
+
+    .admin-users-table th:nth-child(2) {
+      width: 27%;
+    }
+
+    .admin-users-table th:nth-child(3) {
+      width: 18%;
+    }
+
+    .admin-users-table th:nth-child(4) {
+      width: 13%;
+    }
+
+    .admin-users-table th:nth-child(5) {
+      width: 24%;
+    }
+
+    .admin-users-table .btn {
+      padding: 6px 8px;
+      font-size: 11px;
+    }
+
+    .admin-email {
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .admin-profile-badge {
+      display: inline-flex;
+      align-items: center;
+
+      padding: 5px 8px;
+
+      border-radius: 999px;
+
+      background: #e0e7ff;
+      color: #3730a3;
+
+      font-size: 11px;
+      font-weight: 700;
+
+      white-space: nowrap;
+    }
+
+
+    /* =====================================
+       OUTRAS TABELAS ADMIN
+    ====================================== */
+
+    .admin-standard-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .admin-standard-table th,
+    .admin-standard-table td {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+
+    /* =====================================
+       RESPONSIVO
+    ====================================== */
+
+    @media (max-width: 1100px) {
+
+      .admin-grid {
+        grid-template-columns:
+          minmax(250px, 0.9fr)
+          minmax(0, 1.4fr);
+      }
+
+      .admin-users-table th:nth-child(1) {
+        width: 17%;
+      }
+
+      .admin-users-table th:nth-child(2) {
+        width: 25%;
+      }
+
+      .admin-users-table th:nth-child(3) {
+        width: 18%;
+      }
+
+      .admin-users-table th:nth-child(4) {
+        width: 14%;
+      }
+
+      .admin-users-table th:nth-child(5) {
+        width: 26%;
+      }
+
+    }
+
+
+    @media (max-width: 850px) {
+
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-users-table {
+        min-width: 0;
+      }
+
+    }
+
+
+    @media (max-width: 650px) {
+
+      /*
+       * No telefone transformamos a tabela
+       * de utilizadores em cartões.
+       */
+
+      .admin-users-table,
+      .admin-users-table tbody,
+      .admin-users-table tr,
+      .admin-users-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .admin-users-table thead {
+        display: none;
+      }
+
+      .admin-users-table tr {
+        background: #fff;
+
+        border:
+          1px solid #e2e8f0;
+
+        border-radius: 12px;
+
+        padding: 12px;
+
+        margin-bottom: 12px;
+      }
+
+      .admin-users-table td {
+        border: 0;
+
+        padding:
+          7px 0;
+
+        display: grid;
+
+        grid-template-columns:
+          105px
+          minmax(0, 1fr);
+
+        gap: 10px;
+      }
+
+      .admin-users-table td::before {
+        content:
+          attr(data-label);
+
+        font-weight: 700;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .admin-users-table td:last-child {
+        display: block;
+        padding-top: 10px;
+      }
+
+      .admin-users-table td:last-child::before {
+        display: none;
+      }
+
+      .admin-action-group {
+        width: 100%;
+      }
+
+      .admin-action-group .btn {
+        flex: 1;
+        min-width: 100px;
+      }
+
     }
 
   </style>
@@ -177,6 +397,7 @@
     <div id="adminMsg"></div>
 
 
+
     <!-- RESUMO -->
 
 
@@ -271,20 +492,28 @@
 
           <div class="form-group">
 
-            <label>Nome</label>
+            <label>
+              Nome
+            </label>
 
-            <input id="adminUserName">
+            <input
+              id="adminUserName"
+              autocomplete="name"
+            >
 
           </div>
 
 
           <div class="form-group">
 
-            <label>Email</label>
+            <label>
+              Email
+            </label>
 
             <input
               id="adminUserEmail"
               type="email"
+              autocomplete="email"
             >
 
           </div>
@@ -299,6 +528,7 @@
             <input
               id="adminUserPassword"
               type="password"
+              autocomplete="new-password"
             >
 
           </div>
@@ -306,7 +536,9 @@
 
           <div class="form-group">
 
-            <label>Perfil</label>
+            <label>
+              Perfil
+            </label>
 
             <select id="adminUserProfile">
 
@@ -337,30 +569,28 @@
         </div>
 
 
-        <div>
 
-          <div class="table-wrap">
+        <div class="admin-table-card">
 
-            <table>
+          <table class="admin-users-table">
 
-              <thead>
+            <thead>
 
-                <tr>
-                  <th>Nome</th>
-                  <th>Email</th>
-                  <th>Perfil</th>
-                  <th>Estado</th>
-                  <th>Acções</th>
-                </tr>
+              <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Perfil</th>
+                <th>Estado</th>
+                <th>Acções</th>
+              </tr>
 
-              </thead>
+            </thead>
 
-              <tbody id="adminUsersTable">
-              </tbody>
 
-            </table>
+            <tbody id="adminUsersTable">
+            </tbody>
 
-          </div>
+          </table>
 
         </div>
 
@@ -393,7 +623,9 @@
 
           <div class="form-group">
 
-            <label>Nome</label>
+            <label>
+              Nome
+            </label>
 
             <input id="categoryName">
 
@@ -402,7 +634,9 @@
 
           <div class="form-group">
 
-            <label>Descrição</label>
+            <label>
+              Descrição
+            </label>
 
             <textarea
               id="categoryDescription"
@@ -422,9 +656,10 @@
         </div>
 
 
-        <div class="table-wrap">
 
-          <table>
+        <div class="admin-table-card">
+
+          <table class="admin-standard-table">
 
             <thead>
 
@@ -473,7 +708,9 @@
 
           <div class="form-group">
 
-            <label>Código</label>
+            <label>
+              Código
+            </label>
 
             <input
               id="shelfCode"
@@ -485,7 +722,9 @@
 
           <div class="form-group">
 
-            <label>Descrição</label>
+            <label>
+              Descrição
+            </label>
 
             <input id="shelfDescription">
 
@@ -494,7 +733,9 @@
 
           <div class="form-group">
 
-            <label>Localização</label>
+            <label>
+              Localização
+            </label>
 
             <input id="shelfLocation">
 
@@ -511,9 +752,10 @@
         </div>
 
 
-        <div class="table-wrap">
 
-          <table>
+        <div class="admin-table-card">
+
+          <table class="admin-standard-table">
 
             <thead>
 
