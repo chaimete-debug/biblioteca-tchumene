@@ -16,13 +16,11 @@ document.addEventListener(
   'DOMContentLoaded',
   async () => {
 
-    currentUser =
-      requireAuth();
+    currentUser = requireAuth();
 
     if (!currentUser) {
       return;
     }
-
 
     document.getElementById(
       'userName'
@@ -31,16 +29,15 @@ document.addEventListener(
       currentUser.email ||
       '';
 
-
     await refreshCatalog();
   }
 );
 
 
 
-/* ============================================
+/* ==========================================
    CARREGAMENTO
-============================================ */
+========================================== */
 
 
 async function refreshCatalog() {
@@ -55,22 +52,17 @@ async function refreshCatalog() {
       apiGet('getCopies')
     ]);
 
-
     if (!worksResponse.success) {
-
       throw new Error(
         worksResponse.message
       );
     }
 
-
     if (!copiesResponse.success) {
-
       throw new Error(
         copiesResponse.message
       );
     }
-
 
     allWorks =
       Array.isArray(
@@ -79,7 +71,6 @@ async function refreshCatalog() {
         ? worksResponse.data
         : [];
 
-
     allCopies =
       Array.isArray(
         copiesResponse.data
@@ -87,13 +78,10 @@ async function refreshCatalog() {
         ? copiesResponse.data
         : [];
 
-
     cleanInvalidSelections();
 
     renderWorks();
-
     renderCopies();
-
 
   } catch (err) {
 
@@ -106,9 +94,9 @@ async function refreshCatalog() {
 
 
 
-/* ============================================
+/* ==========================================
    CATÁLOGO
-============================================ */
+========================================== */
 
 
 function renderWorks() {
@@ -117,7 +105,6 @@ function renderWorks() {
     document.getElementById(
       'worksTable'
     );
-
 
   const search =
     String(
@@ -128,9 +115,7 @@ function renderWorks() {
     .trim()
     .toLowerCase();
 
-
   tbody.innerHTML = '';
-
 
   const filtered =
     allWorks.filter(work => {
@@ -145,12 +130,10 @@ function renderWorks() {
       .join(' ')
       .toLowerCase();
 
-
       return haystack.includes(
         search
       );
     });
-
 
   if (!filtered.length) {
 
@@ -168,7 +151,6 @@ function renderWorks() {
     return;
   }
 
-
   filtered.forEach(work => {
 
     const copies =
@@ -176,7 +158,6 @@ function renderWorks() {
         String(copy.ID_OBRA) ===
         String(work.ID_OBRA)
       );
-
 
     const available =
       copies.filter(copy =>
@@ -186,7 +167,6 @@ function renderWorks() {
         .toLowerCase()
         === 'disponivel'
       ).length;
-
 
     const cover =
       work.CAPA_URL
@@ -200,22 +180,17 @@ function renderWorks() {
           >
         `
         : `
-          <div
-            class="catalog-no-cover"
-          >
+          <div class="catalog-no-cover">
             📖
           </div>
         `;
-
 
     tbody.insertAdjacentHTML(
       'beforeend',
       `
         <tr>
 
-          <td>
-            ${cover}
-          </td>
+          <td>${cover}</td>
 
           <td>
             ${escapeHtml(
@@ -248,7 +223,6 @@ function renderWorks() {
           </td>
 
           <td>
-
             <span
               class="${
                 available > 0
@@ -258,7 +232,6 @@ function renderWorks() {
             >
               ${available}
             </span>
-
           </td>
 
         </tr>
@@ -269,9 +242,9 @@ function renderWorks() {
 
 
 
-/* ============================================
+/* ==========================================
    EXEMPLARES
-============================================ */
+========================================== */
 
 
 function getFilteredCopies() {
@@ -285,7 +258,6 @@ function getFilteredCopies() {
     .trim()
     .toLowerCase();
 
-
   return allCopies.filter(copy => {
 
     const haystack = [
@@ -298,7 +270,6 @@ function getFilteredCopies() {
     ]
     .join(' ')
     .toLowerCase();
-
 
     return haystack.includes(
       search
@@ -315,13 +286,10 @@ function renderCopies() {
       'copiesTable'
     );
 
-
   const copies =
     getFilteredCopies();
 
-
   tbody.innerHTML = '';
-
 
   if (!copies.length) {
 
@@ -341,7 +309,6 @@ function renderCopies() {
     return;
   }
 
-
   copies.forEach(copy => {
 
     const selected =
@@ -349,12 +316,10 @@ function renderCopies() {
         copy.ID_EXEMPLAR
       );
 
-
     const situationClass =
       getSituationClass(
         copy.SITUACAO
       );
-
 
     tbody.insertAdjacentHTML(
       'beforeend',
@@ -366,9 +331,6 @@ function renderCopies() {
             <input
               type="checkbox"
               class="copy-checkbox"
-              data-id="${escapeHtml(
-                copy.ID_EXEMPLAR
-              )}"
               ${
                 selected
                   ? 'checked'
@@ -386,17 +348,13 @@ function renderCopies() {
 
           </td>
 
-
           <td>
-
             <strong>
               ${escapeHtml(
                 copy.CODIGO_EXEMPLAR || ''
               )}
             </strong>
-
           </td>
-
 
           <td>
             ${escapeHtml(
@@ -404,20 +362,17 @@ function renderCopies() {
             )}
           </td>
 
-
           <td>
             ${escapeHtml(
               copy.ISBN || '—'
             )}
           </td>
 
-
           <td>
             ${escapeHtml(
               copy.ESTANTE || '—'
             )}
           </td>
-
 
           <td>
             ${escapeHtml(
@@ -426,7 +381,6 @@ function renderCopies() {
               )
             )}
           </td>
-
 
           <td>
 
@@ -442,12 +396,9 @@ function renderCopies() {
 
           </td>
 
-
           <td>
 
-            <div
-              class="copy-actions"
-            >
+            <div class="copy-actions">
 
               <button
                 class="btn btn-small"
@@ -484,15 +435,14 @@ function renderCopies() {
     );
   });
 
-
   updateSelectionControls();
 }
 
 
 
-/* ============================================
+/* ==========================================
    SELECÇÃO
-============================================ */
+========================================== */
 
 
 function toggleCopySelection(
@@ -513,7 +463,6 @@ function toggleCopySelection(
     );
   }
 
-
   updateSelectionControls();
 }
 
@@ -525,7 +474,6 @@ function toggleAllCopies(
 
   const copies =
     getFilteredCopies();
-
 
   copies.forEach(copy => {
 
@@ -543,7 +491,6 @@ function toggleAllCopies(
     }
   });
 
-
   renderCopies();
 }
 
@@ -551,17 +498,13 @@ function toggleAllCopies(
 
 function selectAllVisibleCopies() {
 
-  const copies =
-    getFilteredCopies();
+  getFilteredCopies()
+    .forEach(copy => {
 
-
-  copies.forEach(copy => {
-
-    selectedCopyIds.add(
-      copy.ID_EXEMPLAR
-    );
-  });
-
+      selectedCopyIds.add(
+        copy.ID_EXEMPLAR
+      );
+    });
 
   renderCopies();
 }
@@ -584,12 +527,10 @@ function updateSelectionControls() {
       'printSelectedBtn'
     );
 
-
   if (button) {
 
     button.disabled =
       selectedCopyIds.size === 0;
-
 
     button.textContent =
       selectedCopyIds.size > 0
@@ -597,21 +538,17 @@ function updateSelectionControls() {
         : '🖨️ Imprimir Seleccionados';
   }
 
-
   const master =
     document.getElementById(
       'masterCopyCheckbox'
     );
 
-
   if (!master) {
     return;
   }
 
-
   const visible =
     getFilteredCopies();
-
 
   if (!visible.length) {
 
@@ -621,7 +558,6 @@ function updateSelectionControls() {
     return;
   }
 
-
   const selectedVisible =
     visible.filter(copy =>
       selectedCopyIds.has(
@@ -629,11 +565,9 @@ function updateSelectionControls() {
       )
     ).length;
 
-
   master.checked =
     selectedVisible ===
     visible.length;
-
 
   master.indeterminate =
     selectedVisible > 0 &&
@@ -648,10 +582,10 @@ function cleanInvalidSelections() {
   const validIds =
     new Set(
       allCopies.map(
-        copy => copy.ID_EXEMPLAR
+        copy =>
+          copy.ID_EXEMPLAR
       )
     );
-
 
   [
     ...selectedCopyIds
@@ -659,19 +593,207 @@ function cleanInvalidSelections() {
 
     if (!validIds.has(id)) {
 
-      selectedCopyIds.delete(id);
+      selectedCopyIds.delete(
+        id
+      );
     }
   });
 }
 
 
 
-/* ============================================
-   QR CODE
-============================================ */
+/* ==========================================
+   QR - NOVA IMPLEMENTAÇÃO
+========================================== */
 
 
-async function showQrForCopyById(
+function ensureQrLibrary() {
+
+  if (
+    typeof QRCode ===
+    'undefined'
+  ) {
+
+    throw new Error(
+      'A biblioteca de QR Code não foi carregada.'
+    );
+  }
+}
+
+
+
+function renderQrIntoElement(
+  element,
+  text,
+  size = 190
+) {
+
+  ensureQrLibrary();
+
+  if (!text) {
+
+    throw new Error(
+      'Código do exemplar vazio.'
+    );
+  }
+
+  element.innerHTML = '';
+
+  new QRCode(
+    element,
+    {
+      text:
+        String(text),
+
+      width:
+        size,
+
+      height:
+        size,
+
+      colorDark:
+        '#000000',
+
+      colorLight:
+        '#ffffff',
+
+      correctLevel:
+        QRCode.CorrectLevel.M
+    }
+  );
+}
+
+
+
+async function generateQrDataUrl(
+  text,
+  size = 220
+) {
+
+  ensureQrLibrary();
+
+  return new Promise(
+    (resolve, reject) => {
+
+      try {
+
+        const holder =
+          document.createElement(
+            'div'
+          );
+
+        holder.style.position =
+          'fixed';
+
+        holder.style.left =
+          '-10000px';
+
+        holder.style.top =
+          '-10000px';
+
+        document.body.appendChild(
+          holder
+        );
+
+        new QRCode(
+          holder,
+          {
+            text:
+              String(text),
+
+            width:
+              size,
+
+            height:
+              size,
+
+            colorDark:
+              '#000000',
+
+            colorLight:
+              '#ffffff',
+
+            correctLevel:
+              QRCode.CorrectLevel.M
+          }
+        );
+
+        setTimeout(
+          () => {
+
+            try {
+
+              const canvas =
+                holder.querySelector(
+                  'canvas'
+                );
+
+              const img =
+                holder.querySelector(
+                  'img'
+                );
+
+              let dataUrl = '';
+
+              if (
+                canvas &&
+                typeof canvas.toDataURL ===
+                'function'
+              ) {
+
+                dataUrl =
+                  canvas.toDataURL(
+                    'image/png'
+                  );
+
+              } else if (
+                img &&
+                img.src
+              ) {
+
+                dataUrl =
+                  img.src;
+              }
+
+              holder.remove();
+
+              if (!dataUrl) {
+
+                reject(
+                  new Error(
+                    'Não foi possível converter o QR Code em imagem.'
+                  )
+                );
+
+                return;
+              }
+
+              resolve(
+                dataUrl
+              );
+
+            } catch (err) {
+
+              holder.remove();
+
+              reject(err);
+            }
+
+          },
+          100
+        );
+
+      } catch (err) {
+
+        reject(err);
+      }
+    }
+  );
+}
+
+
+
+function showQrForCopyById(
   idExemplar
 ) {
 
@@ -685,7 +807,6 @@ async function showQrForCopyById(
       )
     );
 
-
   if (!copy) {
 
     showBookMessage(
@@ -696,55 +817,31 @@ async function showQrForCopyById(
     return;
   }
 
-
-  currentQrCopy =
-    copy;
-
-
-  document.getElementById(
-    'qrCopyCode'
-  ).textContent =
-    copy.CODIGO_EXEMPLAR || '';
-
-
-  document.getElementById(
-    'qrBookTitle'
-  ).textContent =
-    copy.TITULO || '';
-
-
-  const box =
-    document.getElementById(
-      'qrCanvasBox'
-    );
-
-
-  box.innerHTML = '';
-
-
   try {
 
-    const canvas =
-      document.createElement(
-        'canvas'
+    currentQrCopy =
+      copy;
+
+    document.getElementById(
+      'qrCopyCode'
+    ).textContent =
+      copy.CODIGO_EXEMPLAR || '';
+
+    document.getElementById(
+      'qrBookTitle'
+    ).textContent =
+      copy.TITULO || '';
+
+    const box =
+      document.getElementById(
+        'qrCanvasBox'
       );
 
-
-    await QRCode.toCanvas(
-      canvas,
+    renderQrIntoElement(
+      box,
       copy.CODIGO_EXEMPLAR,
-      {
-        width: 190,
-        margin: 1,
-        errorCorrectionLevel: 'M'
-      }
+      190
     );
-
-
-    box.appendChild(
-      canvas
-    );
-
 
     document.getElementById(
       'qrModal'
@@ -752,11 +849,15 @@ async function showQrForCopyById(
       'hidden'
     );
 
+    clearBookMessage();
 
   } catch (err) {
 
+    currentQrCopy =
+      null;
+
     showBookMessage(
-      'Não foi possível gerar o QR Code.',
+      err.message,
       'error'
     );
   }
@@ -769,13 +870,11 @@ function closeQrModal() {
   currentQrCopy =
     null;
 
-
   document.getElementById(
     'qrModal'
   ).classList.add(
     'hidden'
   );
-
 
   document.getElementById(
     'qrCanvasBox'
@@ -784,9 +883,9 @@ function closeQrModal() {
 
 
 
-/* ============================================
-   IMPRESSÃO QR
-============================================ */
+/* ==========================================
+   IMPRESSÃO
+========================================== */
 
 
 async function printCurrentLabel() {
@@ -794,7 +893,6 @@ async function printCurrentLabel() {
   if (!currentQrCopy) {
     return;
   }
-
 
   await printCopies(
     [currentQrCopy]
@@ -817,7 +915,6 @@ async function printSingleLabelById(
       )
     );
 
-
   if (!copy) {
 
     showBookMessage(
@@ -827,7 +924,6 @@ async function printSingleLabelById(
 
     return;
   }
-
 
   await printCopies(
     [copy]
@@ -845,7 +941,6 @@ async function printSelectedLabels() {
       )
     );
 
-
   if (!copies.length) {
 
     showBookMessage(
@@ -855,7 +950,6 @@ async function printSelectedLabels() {
 
     return;
   }
-
 
   await printCopies(
     copies
@@ -872,28 +966,21 @@ async function printCopies(
 
     const prepared = [];
 
-
     for (
       const copy of copies
     ) {
 
       const qrDataUrl =
-        await QRCode.toDataURL(
+        await generateQrDataUrl(
           copy.CODIGO_EXEMPLAR,
-          {
-            width: 220,
-            margin: 1,
-            errorCorrectionLevel: 'M'
-          }
+          220
         );
-
 
       prepared.push({
         ...copy,
         qrDataUrl
       });
     }
-
 
     const printWindow =
       window.open(
@@ -902,14 +989,12 @@ async function printCopies(
         'width=900,height=700'
       );
 
-
     if (!printWindow) {
 
       throw new Error(
         'O navegador bloqueou a janela de impressão.'
       );
     }
-
 
     const labels =
       prepared.map(copy => `
@@ -922,6 +1007,7 @@ async function printCopies(
           <img
             src="${copy.qrDataUrl}"
             class="qr"
+            alt="QR"
           >
 
           <div class="code">
@@ -951,7 +1037,6 @@ async function printCopies(
 
         </div>
       `).join('');
-
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -986,6 +1071,7 @@ async function printCopies(
 
           .sheet {
             display: grid;
+
             grid-template-columns:
               repeat(
                 auto-fill,
@@ -994,18 +1080,25 @@ async function printCopies(
                   1fr
                 )
               );
+
             gap: 5mm;
           }
 
           .label {
             width: 55mm;
             min-height: 70mm;
+
             border:
               1px solid #000;
+
             padding: 4mm;
-            text-align: center;
+
+            text-align:
+              center;
+
             break-inside:
               avoid;
+
             page-break-inside:
               avoid;
           }
@@ -1034,8 +1127,6 @@ async function printCopies(
             margin-top: 2mm;
             font-size: 9pt;
             line-height: 1.2;
-            max-height: 12mm;
-            overflow: hidden;
           }
 
           .shelf {
@@ -1043,21 +1134,9 @@ async function printCopies(
             font-size: 8pt;
           }
 
-          @media print {
-
-            body {
-              -webkit-print-color-adjust:
-                exact;
-              print-color-adjust:
-                exact;
-            }
-
-          }
-
         </style>
 
       </head>
-
 
       <body>
 
@@ -1070,24 +1149,17 @@ async function printCopies(
       </html>
     `);
 
-
     printWindow.document.close();
 
+    setTimeout(
+      () => {
 
-    printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
 
-      setTimeout(
-        () => {
-
-          printWindow.focus();
-
-          printWindow.print();
-
-        },
-        300
-      );
-    };
-
+      },
+      500
+    );
 
   } catch (err) {
 
@@ -1100,9 +1172,9 @@ async function printCopies(
 
 
 
-/* ============================================
+/* ==========================================
    ISBN
-============================================ */
+========================================== */
 
 
 async function searchISBN() {
@@ -1111,7 +1183,6 @@ async function searchISBN() {
     document.getElementById(
       'isbn'
     ).value.trim();
-
 
   if (!isbn) {
 
@@ -1123,12 +1194,10 @@ async function searchISBN() {
     return;
   }
 
-
   showBookMessage(
     'A procurar dados do livro...',
     'info'
   );
-
 
   try {
 
@@ -1140,7 +1209,6 @@ async function searchISBN() {
         }
       );
 
-
     if (!response.success) {
 
       throw new Error(
@@ -1148,10 +1216,8 @@ async function searchISBN() {
       );
     }
 
-
     const result =
       response.data || {};
-
 
     if (result.obra) {
 
@@ -1159,7 +1225,6 @@ async function searchISBN() {
         result.obra
       );
     }
-
 
     if (result.existente) {
 
@@ -1184,7 +1249,6 @@ async function searchISBN() {
         'info'
       );
     }
-
 
   } catch (err) {
 
@@ -1251,7 +1315,6 @@ function fillBookForm(
     work.CAPA_URL
   );
 
-
   updateCoverPreview(
     work.CAPA_URL
   );
@@ -1268,7 +1331,6 @@ function setValue(
     document.getElementById(
       id
     );
-
 
   if (el) {
 
@@ -1290,12 +1352,10 @@ function updateCoverPreview(
       'coverPreview'
     );
 
-
   const placeholder =
     document.getElementById(
       'coverPlaceholder'
     );
-
 
   if (url) {
 
@@ -1307,7 +1367,6 @@ function updateCoverPreview(
 
     placeholder.style.display =
       'none';
-
 
   } else {
 
@@ -1325,9 +1384,9 @@ function updateCoverPreview(
 
 
 
-/* ============================================
+/* ==========================================
    GUARDAR LIVRO
-============================================ */
+========================================== */
 
 
 async function saveBook() {
@@ -1337,12 +1396,10 @@ async function saveBook() {
       'saveBookBtn'
     );
 
-
   const titulo =
     document.getElementById(
       'titulo'
     ).value.trim();
-
 
   const quantidade =
     Number(
@@ -1350,7 +1407,6 @@ async function saveBook() {
         'quantidade'
       ).value
     );
-
 
   if (!titulo) {
 
@@ -1361,7 +1417,6 @@ async function saveBook() {
 
     return;
   }
-
 
   if (
     !Number.isInteger(
@@ -1377,7 +1432,6 @@ async function saveBook() {
 
     return;
   }
-
 
   const payload = {
 
@@ -1451,13 +1505,11 @@ async function saveBook() {
       ''
   };
 
-
   btn.disabled =
     true;
 
   btn.textContent =
     'A guardar...';
-
 
   try {
 
@@ -1466,7 +1518,6 @@ async function saveBook() {
         payload
       );
 
-
     if (!response.success) {
 
       throw new Error(
@@ -1474,17 +1525,14 @@ async function saveBook() {
       );
     }
 
-
     showBookMessage(
       response.message,
       'success'
     );
 
-
     clearBookForm();
 
     await refreshCatalog();
-
 
   } catch (err) {
 
@@ -1492,7 +1540,6 @@ async function saveBook() {
       err.message,
       'error'
     );
-
 
   } finally {
 
@@ -1529,32 +1576,26 @@ function clearBookForm() {
     );
   });
 
-
   setValue(
     'quantidade',
     '1'
   );
-
 
   document.getElementById(
     'estadoFisico'
   ).value =
     'bom';
 
-
-  updateCoverPreview(
-    ''
-  );
-
+  updateCoverPreview('');
 
   clearBookMessage();
 }
 
 
 
-/* ============================================
+/* ==========================================
    CÂMARA ISBN
-============================================ */
+========================================== */
 
 
 function openScanner() {
@@ -1564,11 +1605,9 @@ function openScanner() {
       'scannerModal'
     );
 
-
   modal.classList.remove(
     'hidden'
   );
-
 
   if (
     typeof Html5Qrcode ===
@@ -1585,34 +1624,10 @@ function openScanner() {
     return;
   }
 
-
   scanner =
     new Html5Qrcode(
       'reader'
     );
-
-
-  const config = {
-
-    fps: 10,
-
-    qrbox: {
-      width: 280,
-      height: 140
-    },
-
-    aspectRatio:
-      1.777778,
-
-    formatsToSupport: [
-      Html5QrcodeSupportedFormats.EAN_13,
-      Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A,
-      Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.CODE_128
-    ]
-  };
-
 
   scanner.start(
 
@@ -1621,7 +1636,25 @@ function openScanner() {
         'environment'
     },
 
-    config,
+    {
+      fps: 10,
+
+      qrbox: {
+        width: 280,
+        height: 140
+      },
+
+      aspectRatio:
+        1.777778,
+
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128
+      ]
+    },
 
     async decodedText => {
 
@@ -1634,7 +1667,6 @@ function openScanner() {
           ''
         );
 
-
       if (
         code.length !== 10 &&
         code.length !== 13
@@ -1643,21 +1675,17 @@ function openScanner() {
         return;
       }
 
-
       document.getElementById(
         'isbn'
       ).value =
         code;
-
 
       await closeScanner();
 
       await searchISBN();
     },
 
-    () => {
-      // Ignorar leituras falhadas.
-    }
+    () => {}
 
   )
   .then(() => {
@@ -1671,12 +1699,10 @@ function openScanner() {
     scannerRunning =
       false;
 
-
     showBookMessage(
       'Não foi possível abrir a câmara. Verifique as permissões.',
       'error'
     );
-
 
     closeScanner();
   });
@@ -1691,7 +1717,6 @@ async function closeScanner() {
       'scannerModal'
     );
 
-
   if (
     scanner &&
     scannerRunning
@@ -1701,11 +1726,8 @@ async function closeScanner() {
 
       await scanner.stop();
 
-    } catch (err) {
-      // Ignorar.
-    }
+    } catch (err) {}
   }
-
 
   scannerRunning =
     false;
@@ -1713,18 +1735,15 @@ async function closeScanner() {
   scanner =
     null;
 
-
   const reader =
     document.getElementById(
       'reader'
     );
 
-
   if (reader) {
 
     reader.innerHTML = '';
   }
-
 
   modal.classList.add(
     'hidden'
@@ -1733,9 +1752,9 @@ async function closeScanner() {
 
 
 
-/* ============================================
+/* ==========================================
    FORMATAÇÃO
-============================================ */
+========================================== */
 
 
 function formatPhysicalState(
@@ -1743,16 +1762,11 @@ function formatPhysicalState(
 ) {
 
   const map = {
-    novo:
-      'Novo',
-    bom:
-      'Bom',
-    razoavel:
-      'Razoável',
-    danificado:
-      'Danificado'
+    novo: 'Novo',
+    bom: 'Bom',
+    razoavel: 'Razoável',
+    danificado: 'Danificado'
   };
-
 
   return map[
     String(value || '')
@@ -1767,20 +1781,13 @@ function formatSituation(
 ) {
 
   const map = {
-    disponivel:
-      'Disponível',
-    emprestado:
-      'Emprestado',
-    reservado:
-      'Reservado',
-    perdido:
-      'Perdido',
-    danificado:
-      'Danificado',
-    inactivo:
-      'Inactivo'
+    disponivel: 'Disponível',
+    emprestado: 'Emprestado',
+    reservado: 'Reservado',
+    perdido: 'Perdido',
+    danificado: 'Danificado',
+    inactivo: 'Inactivo'
   };
-
 
   return map[
     String(value || '')
@@ -1800,7 +1807,6 @@ function getSituationClass(
     )
     .toLowerCase();
 
-
   if (
     status ===
     'disponivel'
@@ -1808,7 +1814,6 @@ function getSituationClass(
 
     return 'status-available';
   }
-
 
   if (
     status ===
@@ -1818,15 +1823,14 @@ function getSituationClass(
     return 'status-loaned';
   }
 
-
   return 'status-neutral';
 }
 
 
 
-/* ============================================
-   MENSAGENS / ESCAPE
-============================================ */
+/* ==========================================
+   MENSAGENS
+========================================== */
 
 
 function showBookMessage(
@@ -1834,13 +1838,9 @@ function showBookMessage(
   type = 'info'
 ) {
 
-  const box =
-    document.getElementById(
-      'bookMsg'
-    );
-
-
-  box.innerHTML = `
+  document.getElementById(
+    'bookMsg'
+  ).innerHTML = `
     <div class="message ${type}">
       ${escapeHtml(
         message
@@ -1858,7 +1858,6 @@ function clearBookMessage() {
       'bookMsg'
     );
 
-
   if (box) {
 
     box.innerHTML = '';
@@ -1874,26 +1873,11 @@ function escapeHtml(
   return String(
     value ?? ''
   )
-  .replaceAll(
-    '&',
-    '&amp;'
-  )
-  .replaceAll(
-    '<',
-    '&lt;'
-  )
-  .replaceAll(
-    '>',
-    '&gt;'
-  )
-  .replaceAll(
-    '"',
-    '&quot;'
-  )
-  .replaceAll(
-    "'",
-    '&#039;'
-  );
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
 }
 
 
