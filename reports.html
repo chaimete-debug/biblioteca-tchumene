@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f172a"
+  >
+
+  <title>
+    Relatórios - Biblioteca Tchumene
+  </title>
+
+  <link
+    rel="manifest"
+    href="/manifest.webmanifest"
+  >
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
+
+  <style>
+
+    .report-filter {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    .report-filter .form-group {
+      margin-bottom: 0;
+      min-width: 170px;
+    }
+
+    .report-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ranking-number {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      background: #e2e8f0;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+
+      .report-filter {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .report-filter .form-group {
+        width: 100%;
+      }
+
+      .report-actions .btn {
+        width: 100%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+
+      <div class="sidebar-brand-icon">
+        📚
+      </div>
+
+      <div>
+        <h2>Biblioteca</h2>
+        <small>Tchumene</small>
+      </div>
+
+    </div>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a href="books.html">
+      Livros
+    </a>
+
+    <a href="readers.html">
+      Leitores
+    </a>
+
+    <a href="loans.html">
+      Empréstimos
+    </a>
+
+    <a
+      href="reports.html"
+      class="active"
+      data-reports-menu="1"
+    >
+      Relatórios
+    </a>
+
+    <a href="account.html">
+      Minha Conta
+    </a>
+
+    <a
+      href="#"
+      onclick="logout()"
+    >
+      Sair
+    </a>
+
+  </aside>
+
+
+  <main class="main">
+
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Relatórios
+        </h1>
+
+        <p class="page-subtitle">
+          Circulação, actividade e controlo
+        </p>
+
+      </div>
+
+
+      <div class="user-box">
+
+        <span id="userName"></span>
+
+        <button
+          class="btn btn-danger"
+          onclick="logout()"
+        >
+          Sair
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="reportMsg"></div>
+
+
+    <!-- FILTRO -->
+
+
+    <div class="panel">
+
+      <div class="report-filter">
+
+        <div class="form-group">
+
+          <label>
+            Data inicial
+          </label>
+
+          <input
+            type="date"
+            id="reportStart"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Data final
+          </label>
+
+          <input
+            type="date"
+            id="reportEnd"
+          >
+
+        </div>
+
+
+        <div class="report-actions">
+
+          <button
+            class="btn"
+            onclick="loadReports()"
+          >
+            Aplicar
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            onclick="clearReportFilters()"
+          >
+            Limpar
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            onclick="exportLoansCsv()"
+          >
+            Exportar CSV
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- KPIs -->
+
+
+    <div class="cards">
+
+      <div class="card">
+
+        <h3>
+          Empréstimos
+        </h3>
+
+        <div
+          class="value"
+          id="reportTotal"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Activos
+        </h3>
+
+        <div
+          class="value"
+          id="reportActive"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Devolvidos
+        </h3>
+
+        <div
+          class="value"
+          id="reportReturned"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Atrasados
+        </h3>
+
+        <div
+          class="value"
+          id="reportOverdue"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h3>
+          Multas
+        </h3>
+
+        <div
+          class="value"
+          id="reportFine"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOP LIVROS -->
+
+
+    <div class="panel">
+
+      <h3>
+        Livros Mais Requisitados
+      </h3>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>#</th>
+              <th>Livro</th>
+              <th>ISBN</th>
+              <th>Empréstimos</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="topBooksTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOP LEITORES -->
+
+
+    <div class="panel">
+
+      <h3>
+        Leitores Mais Activos
+      </h3>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>#</th>
+              <th>Leitor</th>
+              <th>Empréstimos</th>
+              <th>Activos</th>
+              <th>Atrasados</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="topReadersTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- ATRASOS -->
+
+
+    <div class="panel">
+
+      <h3>
+        Empréstimos Atrasados
+      </h3>
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Exemplar</th>
+              <th>Livro</th>
+              <th>Leitor</th>
+              <th>Data Prevista</th>
+              <th>Dias de Atraso</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="overdueTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- HISTÓRICO -->
+
+
+    <div class="panel">
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Histórico de Circulação
+          </h3>
+
+          <p class="muted">
+            Empréstimos dentro do período seleccionado.
+          </p>
+
+        </div>
+
+
+        <input
+          id="reportSearch"
+          class="table-search"
+          placeholder="Pesquisar..."
+          oninput="renderLoans()"
+        >
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Exemplar</th>
+              <th>Livro</th>
+              <th>Leitor</th>
+              <th>Empréstimo</th>
+              <th>Prevista</th>
+              <th>Devolução</th>
+              <th>Estado</th>
+              <th>Multa</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="reportsLoansTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+  </main>
+
+
+</div>
+
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/reports.js"></script>
+<script src="assets/js/pwa.js"></script>
+
+
+</body>
+
+</html>
