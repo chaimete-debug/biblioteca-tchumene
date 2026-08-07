@@ -1,55 +1,426 @@
 <!DOCTYPE html>
+
 <html lang="pt">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Biblioteca</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f172a"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Biblioteca"
+  >
+
+  <title>
+    Biblioteca Tchumene
+  </title>
+
+
+  <link
+    rel="manifest"
+    href="/manifest.webmanifest"
+  >
+
+  <link
+    rel="icon"
+    href="/assets/icons/icon.svg"
+    type="image/svg+xml"
+  >
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
+
 </head>
+
+
 <body>
-  <div class="form-box">
-    <h1>Biblioteca</h1>
 
-    <div id="messageBox"></div>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" id="email" placeholder="Digite o email">
+  <div class="login-page">
+
+
+    <div class="form-box">
+
+
+      <div class="login-brand">
+
+        <div class="login-icon">
+          📚
+        </div>
+
+        <h1>
+          Biblioteca Tchumene
+        </h1>
+
+        <p>
+          Sistema de Gestão da Biblioteca
+        </p>
+
+      </div>
+
+
+      <div id="messageBox"></div>
+
+
+      <div class="form-group">
+
+        <label>
+          Email
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          autocomplete="username"
+          placeholder="Digite o email"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label>
+          Password
+        </label>
+
+        <input
+          type="password"
+          id="password"
+          autocomplete="current-password"
+          placeholder="Digite a password"
+        >
+
+      </div>
+
+
+      <button
+        id="loginBtn"
+        class="btn login-main-btn"
+        onclick="handleLogin()"
+      >
+        Entrar
+      </button>
+
+
+      <button
+        id="installAppBtn"
+        class="btn btn-install hidden"
+        onclick="installApp()"
+      >
+        ⬇ Instalar Aplicação
+      </button>
+
+
+      <div class="login-footer">
+
+        <span
+          id="connectionStatus"
+          class="connection-status"
+        >
+        </span>
+
+      </div>
+
+
     </div>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Digite a password">
-    </div>
-
-    <button class="btn" style="width:100%;" onclick="handleLogin()">Entrar</button>
   </div>
+
+
+
+  <!-- INSTALAÇÃO IOS -->
+
+
+  <div
+    id="iosInstallModal"
+    class="modal-overlay hidden"
+  >
+
+    <div
+      class="modal-card"
+      style="max-width:430px;"
+    >
+
+      <div class="modal-header">
+
+        <div>
+
+          <h3>
+            Instalar Aplicação
+          </h3>
+
+          <p class="muted">
+            iPhone ou iPad
+          </p>
+
+        </div>
+
+
+        <button
+          class="modal-close"
+          onclick="closeIOSInstallInstructions()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="ios-install-steps">
+
+        <p>
+          1. Abra esta página no
+          <strong>Safari</strong>.
+        </p>
+
+        <p>
+          2. Toque no botão
+          <strong>Partilhar</strong>.
+        </p>
+
+        <p>
+          3. Escolha
+          <strong>Adicionar ao Ecrã Principal</strong>.
+        </p>
+
+        <p>
+          4. Confirme em
+          <strong>Adicionar</strong>.
+        </p>
+
+      </div>
+
+
+      <button
+        class="btn"
+        style="width:100%;"
+        onclick="closeIOSInstallInstructions()"
+      >
+        Entendi
+      </button>
+
+    </div>
+
+  </div>
+
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/api.js"></script>
   <script src="assets/js/auth.js"></script>
+  <script src="assets/js/pwa.js"></script>
+
+
   <script>
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+
+        const existingUser =
+          getSession();
+
+        if (existingUser) {
+
+          window.location.href =
+            'dashboard.html';
+
+        }
+
+      }
+    );
+
+
+    document.getElementById(
+      'password'
+    )
+    .addEventListener(
+      'keydown',
+      event => {
+
+        if (
+          event.key ===
+          'Enter'
+        ) {
+
+          handleLogin();
+
+        }
+
+      }
+    );
+
+
     async function handleLogin() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const box = document.getElementById('messageBox');
+
+      const email =
+        document.getElementById(
+          'email'
+        ).value.trim();
+
+
+      const password =
+        document.getElementById(
+          'password'
+        ).value;
+
+
+      const box =
+        document.getElementById(
+          'messageBox'
+        );
+
+
+      const button =
+        document.getElementById(
+          'loginBtn'
+        );
+
 
       box.innerHTML = '';
 
-      const res = await apiPost({
-        action: 'login',
-        email,
-        password
-      });
 
-      if (!res.success) {
-        box.innerHTML = `<div class="message error">${res.message}</div>`;
+      if (
+        !email ||
+        !password
+      ) {
+
+        box.innerHTML = `
+          <div class="message error">
+            Introduza o email e a password.
+          </div>
+        `;
+
         return;
       }
 
-      saveSession(res.data);
-      window.location.href = 'dashboard.html';
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        'A entrar...';
+
+
+      try {
+
+        const res =
+          await apiPost({
+
+            action:
+              'login',
+
+            email:
+              email,
+
+            password:
+              password
+
+          });
+
+
+        if (!res.success) {
+
+          throw new Error(
+            res.message
+          );
+
+        }
+
+
+        saveSession(
+          res.data
+        );
+
+
+        window.location.href =
+          'dashboard.html';
+
+
+      } catch (err) {
+
+        box.innerHTML = `
+          <div class="message error">
+            ${escapeLoginHtml(
+              err.message
+            )}
+          </div>
+        `;
+
+
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          'Entrar';
+
+      }
+
     }
+
+
+    function escapeLoginHtml(
+      value
+    ) {
+
+      return String(
+        value ?? ''
+      )
+      .replaceAll(
+        '&',
+        '&amp;'
+      )
+      .replaceAll(
+        '<',
+        '&lt;'
+      )
+      .replaceAll(
+        '>',
+        '&gt;'
+      )
+      .replaceAll(
+        '"',
+        '&quot;'
+      )
+      .replaceAll(
+        "'",
+        '&#039;'
+      );
+
+    }
+
   </script>
+
+
 </body>
+
 </html>
