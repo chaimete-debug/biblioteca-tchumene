@@ -1,434 +1,845 @@
-<!DOCTYPE html>
-
-<html lang="pt">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta
-    name="theme-color"
-    content="#0f172a"
-  >
-
-  <meta
-    name="mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="Biblioteca"
-  >
-
-  <title>
-    Dashboard - Biblioteca Tchumene
-  </title>
-
-
-  <link
-    rel="manifest"
-    href="/manifest.webmanifest"
-  >
-
-  <link
-    rel="icon"
-    href="/assets/icons/icon.svg"
-    type="image/svg+xml"
-  >
-
-  <link
-    rel="stylesheet"
-    href="assets/css/style.css"
-  >
-
-</head>
-
-
-<body>
-
-
-<div class="layout">
-
-
-  <aside class="sidebar">
-
-
-    <div class="sidebar-brand">
-
-      <div class="sidebar-brand-icon">
-        📚
-      </div>
-
-      <div>
-        <h2>
-          Biblioteca
-        </h2>
-
-        <small>
-          Tchumene
-        </small>
-      </div>
-
-    </div>
-
-
-    <a
-      href="dashboard.html"
-      class="active"
-    >
-      Dashboard
-    </a>
-
-
-    <a href="books.html">
-      Livros
-    </a>
-
-
-    <a href="readers.html">
-      Leitores
-    </a>
-
-
-    <a href="loans.html">
-      Empréstimos
-    </a>
-
-
-    <a href="account.html">
-      Minha Conta
-    </a>
-
-
-    <a
-      href="#"
-      onclick="logout()"
-    >
-      Sair
-    </a>
-
-
-  </aside>
-
-
-
-  <main class="main">
-
-
-    <div class="topbar">
-
-
-      <div>
-
-        <h1>
-          Dashboard
-        </h1>
-
-        <p class="page-subtitle">
-          Biblioteca Tchumene
-        </p>
-
-      </div>
-
-
-      <div class="user-box">
-
-
-        <span
-          id="connectionStatus"
-          class="connection-status"
-        >
-        </span>
-
-
-        <button
-          id="installAppBtn"
-          class="btn btn-install hidden"
-          onclick="installApp()"
-        >
-          ⬇ Instalar
-        </button>
-
-
-        <span id="userName"></span>
-
-
-        <button
-          class="btn btn-danger"
-          onclick="logout()"
-        >
-          Sair
-        </button>
-
-
-      </div>
-
-
-    </div>
-
-
-
-    <div class="cards">
-
-
-      <div class="card">
-
-        <h3>
-          Total de Livros
-        </h3>
-
-        <div
-          class="value"
-          id="totalLivros"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Total de Leitores
-        </h3>
-
-        <div
-          class="value"
-          id="totalLeitores"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Livros Disponíveis
-        </h3>
-
-        <div
-          class="value"
-          id="livrosDisponiveis"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Livros Emprestados
-        </h3>
-
-        <div
-          class="value"
-          id="livrosEmprestados"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h3>
-          Atrasados
-        </h3>
-
-        <div
-          class="value"
-          id="atrasados"
-        >
-          0
-        </div>
-
-      </div>
-
-
-    </div>
-
-
-
-    <div class="panel">
-
-      <h3>
-        Acesso Rápido
-      </h3>
-
-
-      <div class="quick-actions">
-
-
-        <a
-          href="books.html"
-          class="quick-action"
-        >
-
-          <span class="quick-icon">
-            📚
-          </span>
-
-          <strong>
-            Livros
-          </strong>
-
-          <small>
-            Registar e consultar
-          </small>
-
-        </a>
-
-
-        <a
-          href="readers.html"
-          class="quick-action"
-        >
-
-          <span class="quick-icon">
-            👤
-          </span>
-
-          <strong>
-            Leitores
-          </strong>
-
-          <small>
-            Cadastro e cartões
-          </small>
-
-        </a>
-
-
-        <a
-          href="loans.html"
-          class="quick-action"
-        >
-
-          <span class="quick-icon">
-            📷
-          </span>
-
-          <strong>
-            Empréstimos
-          </strong>
-
-          <small>
-            Digitalizar e emprestar
-          </small>
-
-        </a>
-
-
-      </div>
-
-    </div>
-
-
-  </main>
-
-
-</div>
-
-
-
-<!-- INSTALAÇÃO IOS -->
-
-
-<div
-  id="iosInstallModal"
-  class="modal-overlay hidden"
->
-
-  <div
-    class="modal-card"
-    style="max-width:430px;"
-  >
-
-    <div class="modal-header">
-
-      <div>
-
-        <h3>
-          Instalar Aplicação
-        </h3>
-
-        <p class="muted">
-          iPhone ou iPad
-        </p>
-
-      </div>
-
-
-      <button
-        class="modal-close"
-        onclick="closeIOSInstallInstructions()"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="ios-install-steps">
-
-      <p>
-        1. Abra no Safari.
-      </p>
-
-      <p>
-        2. Toque em Partilhar.
-      </p>
-
-      <p>
-        3. Escolha
-        <strong>Adicionar ao Ecrã Principal</strong>.
-      </p>
-
-    </div>
-
-
-    <button
-      class="btn"
-      style="width:100%;"
-      onclick="closeIOSInstallInstructions()"
-    >
-      Entendi
-    </button>
-
-  </div>
-
-</div>
-
-
-<script src="assets/js/config.js"></script>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth.js"></script>
-<script src="assets/js/dashboard.js"></script>
-<script src="assets/js/pwa.js"></script>
-
-
-</body>
-
-</html>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+html {
+  background: #f4f6f9;
+}
+
+body {
+  background: #f4f6f9;
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+/* LOGIN */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form-box {
+  background: #fff;
+  width: min(430px, 100%);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-icon {
+  font-size: 50px;
+  margin-bottom: 8px;
+}
+
+.login-brand h1 {
+  font-size: 27px;
+  margin-bottom: 5px;
+}
+
+.login-brand p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.login-main-btn {
+  width: 100%;
+}
+
+.btn-install {
+  margin-top: 12px;
+  width: 100%;
+  background: #059669;
+}
+
+.btn-install:hover {
+  background: #047857;
+}
+
+.btn-install.pwa-installed,
+.pwa-installed {
+  background: #475569;
+}
+
+.login-footer {
+  margin-top: 18px;
+  text-align: center;
+}
+
+
+/* LAYOUT */
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background: #0f172a;
+  color: #fff;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar h2 {
+  font-size: 22px;
+  margin-bottom: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.sidebar-brand-icon {
+  font-size: 27px;
+}
+
+.sidebar-brand small {
+  color: #94a3b8;
+}
+
+.sidebar > h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar a {
+  display: block;
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: #1e293b;
+  color: #fff;
+}
+
+.main {
+  flex: 1;
+  padding: 24px;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  font-size: 28px;
+}
+
+.page-subtitle,
+.muted {
+  color: #64748b;
+  margin-top: 5px;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+
+/* BOTÕES */
+
+.btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background: #dc2626;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+.btn-secondary {
+  background: #475569;
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+.btn-camera {
+  background: #059669;
+}
+
+.btn-camera:hover {
+  background: #047857;
+}
+
+.btn-small {
+  padding: 7px 11px;
+  font-size: 13px;
+}
+
+
+/* ESTADO DA LIGAÇÃO */
+
+.connection-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 5px 8px;
+  border-radius: 999px;
+}
+
+.connection-status.online {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.connection-status.online::before {
+  content: "●";
+}
+
+.connection-status.offline {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.connection-status.offline::before {
+  content: "●";
+}
+
+
+/* CARDS */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.card h3 {
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.card .value {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.panel {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+
+/* ACESSO RÁPIDO */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-top: 18px;
+}
+
+.quick-action {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: 0.15s ease;
+}
+
+.quick-action:hover {
+  border-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.quick-icon {
+  font-size: 30px;
+}
+
+.quick-action small {
+  color: #64748b;
+}
+
+
+/* TABELAS */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+table th,
+table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+}
+
+table th {
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.empty-table {
+  text-align: center;
+  color: #64748b;
+  padding: 30px !important;
+}
+
+.table-search {
+  width: min(350px, 100%);
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.checkbox-column {
+  width: 40px;
+  text-align: center !important;
+}
+
+
+/* FORMULÁRIOS */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.table-search:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+}
+
+.input-with-button {
+  display: flex;
+  gap: 8px;
+}
+
+.input-with-button input {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+
+/* MENSAGENS */
+
+.message {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.message.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.message.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+
+/* LIVROS */
+
+.book-entry-layout {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 24px;
+}
+
+.book-cover-box {
+  width: 150px;
+  min-height: 210px;
+}
+
+.book-cover {
+  width: 150px;
+  min-height: 200px;
+  max-height: 230px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.cover-placeholder {
+  width: 150px;
+  height: 210px;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.book-form-area {
+  min-width: 0;
+}
+
+.catalog-search {
+  width: min(360px, 100%);
+}
+
+.catalog-search input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.catalog-cover {
+  width: 42px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.catalog-no-cover {
+  width: 42px;
+  height: 60px;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+
+/* EXEMPLARES */
+
+.copies-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.copies-selection-tools {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.copy-actions {
+  display: flex;
+  gap: 6px;
+}
+
+
+/* ESTADOS */
+
+.status-available,
+.status-active {
+  display: inline-flex;
+  justify-content: center;
+  padding: 5px 9px;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.status-unavailable,
+.status-overdue {
+  display: inline-flex;
+  justify-content: center;
+  padding: 5px 9px;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.status-loaned {
+  display: inline-flex;
+  justify-content: center;
+  padding: 5px 9px;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.status-neutral {
+  display: inline-flex;
+  justify-content: center;
+  padding: 5px 9px;
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+
+/* SCANNER */
+
+.scan-result-card {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 5px 0 18px;
+  display: grid;
+  gap: 6px;
+}
+
+
+/* MODAIS */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15,23,42,0.70);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  background: #fff;
+  width: min(600px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.30);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.modal-close {
+  border: none;
+  background: #e2e8f0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: #cbd5e1;
+}
+
+.scanner-card {
+  width: min(650px, 100%);
+}
+
+#reader,
+#circulationReader {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.scanner-help {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  color: #64748b;
+}
+
+
+/* QR */
+
+.qr-modal-card {
+  width: min(480px, 100%);
+}
+
+.qr-label-preview {
+  width: 260px;
+  margin: 10px auto 20px;
+  padding: 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  background: #fff;
+}
+
+.qr-library-name {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+#qrCanvasBox {
+  min-height: 190px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.qr-copy-code {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.qr-book-title {
+  margin-top: 6px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.qr-actions {
+  justify-content: center;
+}
+
+
+/* IOS */
+
+.ios-install-steps {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 22px;
+  line-height: 1.45;
+}
+
+
+/* RESPONSIVO */
+
+@media (max-width: 900px) {
+
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .sidebar > h2 {
+    margin-bottom: 12px;
+  }
+
+  .sidebar-brand {
+    margin-bottom: 12px;
+  }
+
+  .sidebar a {
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .book-entry-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .book-cover-box {
+    width: 100%;
+  }
+
+  .book-cover,
+  .cover-placeholder {
+    width: 120px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .topbar h1 {
+    font-size: 24px;
+  }
+
+  .panel {
+    padding: 15px;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .panel-heading .btn-camera,
+  #printSelectedBtn {
+    width: 100%;
+  }
+
+  .input-with-button {
+    flex-direction: column;
+  }
+
+  .input-with-button .btn {
+    width: 100%;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .user-box {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .table-search {
+    width: 100%;
+  }
+
+  .copies-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copies-selection-tools {
+    width: 100%;
+  }
+
+  .copies-selection-tools .btn {
+    flex: 1;
+  }
+
+  .form-box {
+    padding: 24px 20px;
+  }
+}
