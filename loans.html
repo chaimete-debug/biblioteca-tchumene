@@ -1,75 +1,463 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empréstimos - Biblioteca</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Empréstimos - Biblioteca Tchumene
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
+
 </head>
+
+
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h2>Biblioteca</h2>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="books.html">Livros</a>
-      <a href="readers.html">Leitores</a>
-      <a href="loans.html" class="active">Empréstimos</a>
-      <a href="#" onclick="logout()">Sair</a>
-    </aside>
 
-    <main class="main">
-      <div class="topbar">
-        <h1>Empréstimos</h1>
-        <div class="user-box">
-          <span id="userName"></span>
-          <button class="btn btn-danger" onclick="logout()">Sair</button>
-        </div>
+
+<div class="layout">
+
+
+  <aside class="sidebar">
+
+    <h2>
+      Biblioteca
+    </h2>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a href="books.html">
+      Livros
+    </a>
+
+    <a href="readers.html">
+      Leitores
+    </a>
+
+    <a
+      href="loans.html"
+      class="active"
+    >
+      Empréstimos
+    </a>
+
+    <a href="account.html">
+      Minha Conta
+    </a>
+
+    <a
+      href="#"
+      onclick="logout()"
+    >
+      Sair
+    </a>
+
+  </aside>
+
+
+
+  <main class="main">
+
+
+    <div class="topbar">
+
+      <div>
+
+        <h1>
+          Empréstimos
+        </h1>
+
+        <p class="page-subtitle">
+          Empréstimos e devoluções por exemplar
+        </p>
+
       </div>
 
-      <div class="panel">
-        <h3>Novo Empréstimo</h3>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Livro</label>
-            <select id="idLivro"></select>
+      <div class="user-box">
+
+        <span id="userName"></span>
+
+        <button
+          class="btn btn-danger"
+          onclick="logout()"
+        >
+          Sair
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =================================
+         EMPRÉSTIMO
+    ================================== -->
+
+
+    <div class="panel">
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Novo Empréstimo
+          </h3>
+
+          <p class="muted">
+            Digitalize o QR do exemplar ou introduza o código manualmente.
+          </p>
+
+        </div>
+
+
+        <button
+          class="btn btn-camera"
+          onclick="openLoanScanner()"
+        >
+          📷 Digitalizar Exemplar
+        </button>
+
+      </div>
+
+
+
+      <div id="loanMsg"></div>
+
+
+      <div class="form-grid">
+
+
+        <div class="form-group">
+
+          <label>
+            Código do Exemplar
+          </label>
+
+          <div class="input-with-button">
+
+            <input
+              id="loanCopyCode"
+              placeholder="EXE-000001"
+              autocomplete="off"
+            >
+
+            <button
+              class="btn btn-secondary"
+              type="button"
+              onclick="findLoanCopy()"
+            >
+              Procurar
+            </button>
+
           </div>
 
-          <div class="form-group">
-            <label>Leitor</label>
-            <select id="idLeitor"></select>
-          </div>
         </div>
 
-        <div id="loanMsg"></div>
 
-        <button class="btn" onclick="submitLoan()">Registar Empréstimo</button>
-      </div>
 
-      <div class="panel">
-        <h3>Empréstimos Activos</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Livro</th>
-                <th>Leitor</th>
-                <th>Data Empréstimo</th>
-                <th>Data Prevista</th>
-                <th>Estado</th>
-                <th>Acção</th>
-              </tr>
-            </thead>
-            <tbody id="loansTable"></tbody>
-          </table>
+        <div class="form-group">
+
+          <label>
+            Leitor
+          </label>
+
+          <select id="loanReader">
+
+            <option value="">
+              Seleccione o leitor
+            </option>
+
+          </select>
+
         </div>
+
       </div>
-    </main>
+
+
+
+      <div
+        id="loanCopyPreview"
+        class="scan-result-card hidden"
+      >
+      </div>
+
+
+
+      <div class="form-actions">
+
+        <button
+          id="borrowBtn"
+          class="btn"
+          onclick="confirmBorrow()"
+          disabled
+        >
+          Confirmar Empréstimo
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="clearLoanForm()"
+        >
+          Limpar
+        </button>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- =================================
+         DEVOLUÇÃO
+    ================================== -->
+
+
+    <div class="panel">
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Devolução
+          </h3>
+
+          <p class="muted">
+            Digitalize o exemplar devolvido.
+          </p>
+
+        </div>
+
+
+        <button
+          class="btn btn-camera"
+          onclick="openReturnScanner()"
+        >
+          📷 Digitalizar Devolução
+        </button>
+
+      </div>
+
+
+
+      <div id="returnMsg"></div>
+
+
+      <div class="form-group">
+
+        <label>
+          Código do Exemplar
+        </label>
+
+        <div class="input-with-button">
+
+          <input
+            id="returnCopyCode"
+            placeholder="EXE-000001"
+            autocomplete="off"
+          >
+
+          <button
+            class="btn btn-secondary"
+            onclick="findReturnLoan()"
+          >
+            Procurar
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <div
+        id="returnPreview"
+        class="scan-result-card hidden"
+      >
+      </div>
+
+
+
+      <div class="form-actions">
+
+        <button
+          id="returnBtn"
+          class="btn"
+          onclick="confirmReturn()"
+          disabled
+        >
+          Confirmar Devolução
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="clearReturnForm()"
+        >
+          Limpar
+        </button>
+
+      </div>
+
+
+    </div>
+
+
+
+    <!-- =================================
+         EMPRÉSTIMOS ACTIVOS
+    ================================== -->
+
+
+    <div class="panel">
+
+
+      <div class="panel-heading">
+
+        <div>
+
+          <h3>
+            Empréstimos Activos
+          </h3>
+
+          <p class="muted">
+            Exemplares actualmente fora da biblioteca.
+          </p>
+
+        </div>
+
+
+        <input
+          id="loanSearch"
+          class="table-search"
+          placeholder="Pesquisar..."
+          oninput="renderOpenLoans()"
+        >
+
+      </div>
+
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Exemplar</th>
+              <th>Livro</th>
+              <th>Leitor</th>
+              <th>Empréstimo</th>
+              <th>Devolução Prevista</th>
+              <th>Estado</th>
+              <th>Acção</th>
+            </tr>
+
+          </thead>
+
+
+          <tbody id="loansTable">
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+    </div>
+
+
+  </main>
+
+</div>
+
+
+
+<!-- =================================
+     MODAL DA CÂMARA
+================================== -->
+
+
+<div
+  id="circulationScannerModal"
+  class="modal-overlay hidden"
+>
+
+  <div class="modal-card scanner-card">
+
+
+    <div class="modal-header">
+
+      <div>
+
+        <h3 id="scannerTitle">
+          Digitalizar Exemplar
+        </h3>
+
+        <p class="muted">
+          Aponte a câmara para o QR Code do exemplar.
+        </p>
+
+      </div>
+
+
+      <button
+        class="modal-close"
+        onclick="closeCirculationScanner()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div id="circulationReader">
+    </div>
+
+
+    <div class="scanner-help">
+
+      <p>
+        O QR deve conter um código como
+        <strong>EXE-000001</strong>.
+      </p>
+
+    </div>
+
+
   </div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/loans.js"></script>
+</div>
+
+
+
+<script
+  src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+></script>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/loans.js"></script>
+
+
 </body>
 </html>
