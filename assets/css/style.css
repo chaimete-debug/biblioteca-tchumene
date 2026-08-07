@@ -10,6 +10,10 @@ body {
   color: #1f2937;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .layout {
   display: flex;
   min-height: 100vh;
@@ -89,7 +93,7 @@ body {
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
@@ -115,6 +119,11 @@ body {
 
 .btn-camera:hover {
   background: #047857;
+}
+
+.btn-small {
+  padding: 7px 11px;
+  font-size: 13px;
 }
 
 .cards {
@@ -192,6 +201,14 @@ table th {
   padding: 30px !important;
 }
 
+.table-search {
+  width: min(320px, 100%);
+  padding: 11px 12px;
+  border:
+    1px solid #d1d5db;
+  border-radius: 8px;
+}
+
 .form-box {
   background: #fff;
   max-width: 420px;
@@ -239,7 +256,8 @@ table th {
 
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.table-search:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow:
@@ -254,10 +272,6 @@ table th {
 
 .input-with-button input {
   flex: 1;
-}
-
-.input-with-button .btn {
-  flex-shrink: 0;
 }
 
 .form-actions {
@@ -358,26 +372,45 @@ table th {
   border-radius: 4px;
 }
 
-.status-available {
+
+/* ESTADOS */
+
+.status-available,
+.status-active {
   display: inline-flex;
-  min-width: 30px;
   justify-content: center;
-  padding: 5px 8px;
+  padding: 5px 9px;
   background: #dcfce7;
   color: #166534;
   border-radius: 999px;
   font-weight: bold;
+  font-size: 12px;
 }
 
-.status-unavailable {
+.status-unavailable,
+.status-overdue {
   display: inline-flex;
-  min-width: 30px;
   justify-content: center;
-  padding: 5px 8px;
+  padding: 5px 9px;
   background: #fee2e2;
   color: #991b1b;
   border-radius: 999px;
   font-weight: bold;
+  font-size: 12px;
+}
+
+
+/* RESULTADO SCANNER */
+
+.scan-result-card {
+  border:
+    1px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 5px 0 18px;
+  display: grid;
+  gap: 6px;
 }
 
 
@@ -437,7 +470,8 @@ table th {
   width: min(650px, 100%);
 }
 
-#reader {
+#reader,
+#circulationReader {
   width: 100%;
   overflow: hidden;
   border-radius: 12px;
@@ -530,7 +564,10 @@ table th {
 
   .user-box {
     width: 100%;
-    justify-content:
-      space-between;
+    justify-content: space-between;
+  }
+
+  .table-search {
+    width: 100%;
   }
 }
