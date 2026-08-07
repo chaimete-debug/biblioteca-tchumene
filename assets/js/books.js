@@ -6,14 +6,23 @@ let allCopies = [];
 let scanner = null;
 let scannerRunning = false;
 
+let selectedCopyIds = new Set();
+
+let currentQrCopy = null;
+
+
 
 document.addEventListener(
   'DOMContentLoaded',
   async () => {
 
-    currentUser = requireAuth();
+    currentUser =
+      requireAuth();
 
-    if (!currentUser) return;
+    if (!currentUser) {
+      return;
+    }
+
 
     document.getElementById(
       'userName'
@@ -22,12 +31,20 @@ document.addEventListener(
       currentUser.email ||
       '';
 
+
     await refreshCatalog();
   }
 );
 
 
+
+/* ============================================
+   CARREGAMENTO
+============================================ */
+
+
 async function refreshCatalog() {
+
   try {
 
     const [
@@ -38,31 +55,45 @@ async function refreshCatalog() {
       apiGet('getCopies')
     ]);
 
+
     if (!worksResponse.success) {
+
       throw new Error(
         worksResponse.message
       );
     }
 
+
     if (!copiesResponse.success) {
+
       throw new Error(
         copiesResponse.message
       );
     }
 
-    allWorks = Array.isArray(
-      worksResponse.data
-    )
-      ? worksResponse.data
-      : [];
 
-    allCopies = Array.isArray(
-      copiesResponse.data
-    )
-      ? copiesResponse.data
-      : [];
+    allWorks =
+      Array.isArray(
+        worksResponse.data
+      )
+        ? worksResponse.data
+        : [];
+
+
+    allCopies =
+      Array.isArray(
+        copiesResponse.data
+      )
+        ? copiesResponse.data
+        : [];
+
+
+    cleanInvalidSelections();
 
     renderWorks();
+
+    renderCopies();
+
 
   } catch (err) {
 
@@ -74,11 +105,19 @@ async function refreshCatalog() {
 }
 
 
+
+/* ============================================
+   CATÁLOGO
+============================================ */
+
+
 function renderWorks() {
+
   const tbody =
     document.getElementById(
       'worksTable'
     );
+
 
   const search =
     String(
@@ -89,10 +128,12 @@ function renderWorks() {
     .trim()
     .toLowerCase();
 
+
   tbody.innerHTML = '';
 
-  const filtered = allWorks.filter(
-    work => {
+
+  const filtered =
+    allWorks.filter(work => {
 
       const haystack = [
         work.ISBN,
@@ -104,15 +145,21 @@ function renderWorks() {
       .join(' ')
       .toLowerCase();
 
-      return haystack.includes(search);
-    }
-  );
+
+      return haystack.includes(
+        search
+      );
+    });
+
 
   if (!filtered.length) {
 
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="empty-table">
+        <td
+          colspan="7"
+          class="empty-table"
+        >
           Nenhuma obra encontrada.
         </td>
       </tr>
@@ -124,64 +171,84 @@ function renderWorks() {
 
   filtered.forEach(work => {
 
-    const copies = allCopies.filter(
-      copy =>
+    const copies =
+      allCopies.filter(copy =>
         String(copy.ID_OBRA) ===
         String(work.ID_OBRA)
-    );
+      );
+
 
     const available =
-      copies.filter(
-        copy =>
-          String(
-            copy.SITUACAO || ''
-          ).toLowerCase()
-          === 'disponivel'
+      copies.filter(copy =>
+        String(
+          copy.SITUACAO || ''
+        )
+        .toLowerCase()
+        === 'disponivel'
       ).length;
 
 
-    const cover = work.CAPA_URL
-      ? `
-        <img
-          src="${escapeHtml(work.CAPA_URL)}"
-          class="catalog-cover"
-          alt=""
-        >
-      `
-      : `
-        <div class="catalog-no-cover">
-          📖
-        </div>
-      `;
+    const cover =
+      work.CAPA_URL
+        ? `
+          <img
+            src="${escapeHtml(
+              work.CAPA_URL
+            )}"
+            class="catalog-cover"
+            alt=""
+          >
+        `
+        : `
+          <div
+            class="catalog-no-cover"
+          >
+            📖
+          </div>
+        `;
 
 
     tbody.insertAdjacentHTML(
       'beforeend',
       `
         <tr>
-          <td>${cover}</td>
 
           <td>
-            ${escapeHtml(work.ISBN || '')}
+            ${cover}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              work.ISBN || ''
+            )}
           </td>
 
           <td>
             <strong>
-              ${escapeHtml(work.TITULO || '')}
+              ${escapeHtml(
+                work.TITULO || ''
+              )}
             </strong>
           </td>
 
           <td>
-            ${escapeHtml(work.AUTOR || '')}
+            ${escapeHtml(
+              work.AUTOR || ''
+            )}
           </td>
 
           <td>
-            ${escapeHtml(work.CATEGORIA || '')}
+            ${escapeHtml(
+              work.CATEGORIA || ''
+            )}
           </td>
 
-          <td>${copies.length}</td>
+          <td>
+            ${copies.length}
+          </td>
 
           <td>
+
             <span
               class="${
                 available > 0
@@ -191,12 +258,851 @@ function renderWorks() {
             >
               ${available}
             </span>
+
           </td>
+
         </tr>
       `
     );
   });
 }
+
+
+
+/* ============================================
+   EXEMPLARES
+============================================ */
+
+
+function getFilteredCopies() {
+
+  const search =
+    String(
+      document.getElementById(
+        'copiesSearch'
+      )?.value || ''
+    )
+    .trim()
+    .toLowerCase();
+
+
+  return allCopies.filter(copy => {
+
+    const haystack = [
+      copy.CODIGO_EXEMPLAR,
+      copy.TITULO,
+      copy.ISBN,
+      copy.ESTANTE,
+      copy.ESTADO_FISICO,
+      copy.SITUACAO
+    ]
+    .join(' ')
+    .toLowerCase();
+
+
+    return haystack.includes(
+      search
+    );
+  });
+}
+
+
+
+function renderCopies() {
+
+  const tbody =
+    document.getElementById(
+      'copiesTable'
+    );
+
+
+  const copies =
+    getFilteredCopies();
+
+
+  tbody.innerHTML = '';
+
+
+  if (!copies.length) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          class="empty-table"
+        >
+          Nenhum exemplar encontrado.
+        </td>
+      </tr>
+    `;
+
+    updateSelectionControls();
+
+    return;
+  }
+
+
+  copies.forEach(copy => {
+
+    const selected =
+      selectedCopyIds.has(
+        copy.ID_EXEMPLAR
+      );
+
+
+    const situationClass =
+      getSituationClass(
+        copy.SITUACAO
+      );
+
+
+    tbody.insertAdjacentHTML(
+      'beforeend',
+      `
+        <tr>
+
+          <td class="checkbox-column">
+
+            <input
+              type="checkbox"
+              class="copy-checkbox"
+              data-id="${escapeHtml(
+                copy.ID_EXEMPLAR
+              )}"
+              ${
+                selected
+                  ? 'checked'
+                  : ''
+              }
+              onchange="
+                toggleCopySelection(
+                  '${escapeJsValue(
+                    copy.ID_EXEMPLAR
+                  )}',
+                  this.checked
+                )
+              "
+            >
+
+          </td>
+
+
+          <td>
+
+            <strong>
+              ${escapeHtml(
+                copy.CODIGO_EXEMPLAR || ''
+              )}
+            </strong>
+
+          </td>
+
+
+          <td>
+            ${escapeHtml(
+              copy.TITULO || ''
+            )}
+          </td>
+
+
+          <td>
+            ${escapeHtml(
+              copy.ISBN || '—'
+            )}
+          </td>
+
+
+          <td>
+            ${escapeHtml(
+              copy.ESTANTE || '—'
+            )}
+          </td>
+
+
+          <td>
+            ${escapeHtml(
+              formatPhysicalState(
+                copy.ESTADO_FISICO
+              )
+            )}
+          </td>
+
+
+          <td>
+
+            <span
+              class="${situationClass}"
+            >
+              ${escapeHtml(
+                formatSituation(
+                  copy.SITUACAO
+                )
+              )}
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <div
+              class="copy-actions"
+            >
+
+              <button
+                class="btn btn-small"
+                onclick="
+                  showQrForCopyById(
+                    '${escapeJsValue(
+                      copy.ID_EXEMPLAR
+                    )}'
+                  )
+                "
+              >
+                QR
+              </button>
+
+              <button
+                class="btn btn-secondary btn-small"
+                onclick="
+                  printSingleLabelById(
+                    '${escapeJsValue(
+                      copy.ID_EXEMPLAR
+                    )}'
+                  )
+                "
+              >
+                🖨️
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `
+    );
+  });
+
+
+  updateSelectionControls();
+}
+
+
+
+/* ============================================
+   SELECÇÃO
+============================================ */
+
+
+function toggleCopySelection(
+  idExemplar,
+  checked
+) {
+
+  if (checked) {
+
+    selectedCopyIds.add(
+      idExemplar
+    );
+
+  } else {
+
+    selectedCopyIds.delete(
+      idExemplar
+    );
+  }
+
+
+  updateSelectionControls();
+}
+
+
+
+function toggleAllCopies(
+  checked
+) {
+
+  const copies =
+    getFilteredCopies();
+
+
+  copies.forEach(copy => {
+
+    if (checked) {
+
+      selectedCopyIds.add(
+        copy.ID_EXEMPLAR
+      );
+
+    } else {
+
+      selectedCopyIds.delete(
+        copy.ID_EXEMPLAR
+      );
+    }
+  });
+
+
+  renderCopies();
+}
+
+
+
+function selectAllVisibleCopies() {
+
+  const copies =
+    getFilteredCopies();
+
+
+  copies.forEach(copy => {
+
+    selectedCopyIds.add(
+      copy.ID_EXEMPLAR
+    );
+  });
+
+
+  renderCopies();
+}
+
+
+
+function clearCopySelection() {
+
+  selectedCopyIds.clear();
+
+  renderCopies();
+}
+
+
+
+function updateSelectionControls() {
+
+  const button =
+    document.getElementById(
+      'printSelectedBtn'
+    );
+
+
+  if (button) {
+
+    button.disabled =
+      selectedCopyIds.size === 0;
+
+
+    button.textContent =
+      selectedCopyIds.size > 0
+        ? `🖨️ Imprimir Seleccionados (${selectedCopyIds.size})`
+        : '🖨️ Imprimir Seleccionados';
+  }
+
+
+  const master =
+    document.getElementById(
+      'masterCopyCheckbox'
+    );
+
+
+  if (!master) {
+    return;
+  }
+
+
+  const visible =
+    getFilteredCopies();
+
+
+  if (!visible.length) {
+
+    master.checked = false;
+    master.indeterminate = false;
+
+    return;
+  }
+
+
+  const selectedVisible =
+    visible.filter(copy =>
+      selectedCopyIds.has(
+        copy.ID_EXEMPLAR
+      )
+    ).length;
+
+
+  master.checked =
+    selectedVisible ===
+    visible.length;
+
+
+  master.indeterminate =
+    selectedVisible > 0 &&
+    selectedVisible <
+    visible.length;
+}
+
+
+
+function cleanInvalidSelections() {
+
+  const validIds =
+    new Set(
+      allCopies.map(
+        copy => copy.ID_EXEMPLAR
+      )
+    );
+
+
+  [
+    ...selectedCopyIds
+  ].forEach(id => {
+
+    if (!validIds.has(id)) {
+
+      selectedCopyIds.delete(id);
+    }
+  });
+}
+
+
+
+/* ============================================
+   QR CODE
+============================================ */
+
+
+async function showQrForCopyById(
+  idExemplar
+) {
+
+  const copy =
+    allCopies.find(item =>
+      String(
+        item.ID_EXEMPLAR
+      ) ===
+      String(
+        idExemplar
+      )
+    );
+
+
+  if (!copy) {
+
+    showBookMessage(
+      'Exemplar não encontrado.',
+      'error'
+    );
+
+    return;
+  }
+
+
+  currentQrCopy =
+    copy;
+
+
+  document.getElementById(
+    'qrCopyCode'
+  ).textContent =
+    copy.CODIGO_EXEMPLAR || '';
+
+
+  document.getElementById(
+    'qrBookTitle'
+  ).textContent =
+    copy.TITULO || '';
+
+
+  const box =
+    document.getElementById(
+      'qrCanvasBox'
+    );
+
+
+  box.innerHTML = '';
+
+
+  try {
+
+    const canvas =
+      document.createElement(
+        'canvas'
+      );
+
+
+    await QRCode.toCanvas(
+      canvas,
+      copy.CODIGO_EXEMPLAR,
+      {
+        width: 190,
+        margin: 1,
+        errorCorrectionLevel: 'M'
+      }
+    );
+
+
+    box.appendChild(
+      canvas
+    );
+
+
+    document.getElementById(
+      'qrModal'
+    ).classList.remove(
+      'hidden'
+    );
+
+
+  } catch (err) {
+
+    showBookMessage(
+      'Não foi possível gerar o QR Code.',
+      'error'
+    );
+  }
+}
+
+
+
+function closeQrModal() {
+
+  currentQrCopy =
+    null;
+
+
+  document.getElementById(
+    'qrModal'
+  ).classList.add(
+    'hidden'
+  );
+
+
+  document.getElementById(
+    'qrCanvasBox'
+  ).innerHTML = '';
+}
+
+
+
+/* ============================================
+   IMPRESSÃO QR
+============================================ */
+
+
+async function printCurrentLabel() {
+
+  if (!currentQrCopy) {
+    return;
+  }
+
+
+  await printCopies(
+    [currentQrCopy]
+  );
+}
+
+
+
+async function printSingleLabelById(
+  idExemplar
+) {
+
+  const copy =
+    allCopies.find(item =>
+      String(
+        item.ID_EXEMPLAR
+      ) ===
+      String(
+        idExemplar
+      )
+    );
+
+
+  if (!copy) {
+
+    showBookMessage(
+      'Exemplar não encontrado.',
+      'error'
+    );
+
+    return;
+  }
+
+
+  await printCopies(
+    [copy]
+  );
+}
+
+
+
+async function printSelectedLabels() {
+
+  const copies =
+    allCopies.filter(copy =>
+      selectedCopyIds.has(
+        copy.ID_EXEMPLAR
+      )
+    );
+
+
+  if (!copies.length) {
+
+    showBookMessage(
+      'Seleccione pelo menos um exemplar.',
+      'error'
+    );
+
+    return;
+  }
+
+
+  await printCopies(
+    copies
+  );
+}
+
+
+
+async function printCopies(
+  copies
+) {
+
+  try {
+
+    const prepared = [];
+
+
+    for (
+      const copy of copies
+    ) {
+
+      const qrDataUrl =
+        await QRCode.toDataURL(
+          copy.CODIGO_EXEMPLAR,
+          {
+            width: 220,
+            margin: 1,
+            errorCorrectionLevel: 'M'
+          }
+        );
+
+
+      prepared.push({
+        ...copy,
+        qrDataUrl
+      });
+    }
+
+
+    const printWindow =
+      window.open(
+        '',
+        '_blank',
+        'width=900,height=700'
+      );
+
+
+    if (!printWindow) {
+
+      throw new Error(
+        'O navegador bloqueou a janela de impressão.'
+      );
+    }
+
+
+    const labels =
+      prepared.map(copy => `
+        <div class="label">
+
+          <div class="library">
+            Biblioteca Tchumene
+          </div>
+
+          <img
+            src="${copy.qrDataUrl}"
+            class="qr"
+          >
+
+          <div class="code">
+            ${escapeHtml(
+              copy.CODIGO_EXEMPLAR || ''
+            )}
+          </div>
+
+          <div class="title">
+            ${escapeHtml(
+              copy.TITULO || ''
+            )}
+          </div>
+
+          ${
+            copy.ESTANTE
+              ? `
+                <div class="shelf">
+                  Estante:
+                  ${escapeHtml(
+                    copy.ESTANTE
+                  )}
+                </div>
+              `
+              : ''
+          }
+
+        </div>
+      `).join('');
+
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+
+      <html>
+
+      <head>
+
+        <meta charset="UTF-8">
+
+        <title>
+          Etiquetas - Biblioteca Tchumene
+        </title>
+
+        <style>
+
+          @page {
+            margin: 8mm;
+          }
+
+          * {
+            box-sizing:
+              border-box;
+          }
+
+          body {
+            margin: 0;
+            font-family:
+              Arial,
+              sans-serif;
+          }
+
+          .sheet {
+            display: grid;
+            grid-template-columns:
+              repeat(
+                auto-fill,
+                minmax(
+                  55mm,
+                  1fr
+                )
+              );
+            gap: 5mm;
+          }
+
+          .label {
+            width: 55mm;
+            min-height: 70mm;
+            border:
+              1px solid #000;
+            padding: 4mm;
+            text-align: center;
+            break-inside:
+              avoid;
+            page-break-inside:
+              avoid;
+          }
+
+          .library {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-bottom: 2mm;
+          }
+
+          .qr {
+            width: 35mm;
+            height: 35mm;
+            object-fit: contain;
+          }
+
+          .code {
+            margin-top: 2mm;
+            font-size: 13pt;
+            font-weight: bold;
+            letter-spacing:
+              0.5px;
+          }
+
+          .title {
+            margin-top: 2mm;
+            font-size: 9pt;
+            line-height: 1.2;
+            max-height: 12mm;
+            overflow: hidden;
+          }
+
+          .shelf {
+            margin-top: 2mm;
+            font-size: 8pt;
+          }
+
+          @media print {
+
+            body {
+              -webkit-print-color-adjust:
+                exact;
+              print-color-adjust:
+                exact;
+            }
+
+          }
+
+        </style>
+
+      </head>
+
+
+      <body>
+
+        <div class="sheet">
+          ${labels}
+        </div>
+
+      </body>
+
+      </html>
+    `);
+
+
+    printWindow.document.close();
+
+
+    printWindow.onload = () => {
+
+      setTimeout(
+        () => {
+
+          printWindow.focus();
+
+          printWindow.print();
+
+        },
+        300
+      );
+    };
+
+
+  } catch (err) {
+
+    showBookMessage(
+      err.message,
+      'error'
+    );
+  }
+}
+
+
+
+/* ============================================
+   ISBN
+============================================ */
 
 
 async function searchISBN() {
@@ -206,7 +1112,9 @@ async function searchISBN() {
       'isbn'
     ).value.trim();
 
+
   if (!isbn) {
+
     showBookMessage(
       'Introduza ou digitalize um ISBN.',
       'error'
@@ -224,20 +1132,29 @@ async function searchISBN() {
 
   try {
 
-    const response = await apiGet(
-      'lookupISBN',
-      { isbn }
-    );
+    const response =
+      await apiGet(
+        'lookupISBN',
+        {
+          isbn
+        }
+      );
+
 
     if (!response.success) {
+
       throw new Error(
         response.message
       );
     }
 
-    const result = response.data || {};
+
+    const result =
+      response.data || {};
+
 
     if (result.obra) {
+
       fillBookForm(
         result.obra
       );
@@ -247,11 +1164,13 @@ async function searchISBN() {
     if (result.existente) {
 
       showBookMessage(
-        'Esta obra já existe na biblioteca. Pode indicar a quantidade para adicionar novos exemplares.',
+        'Esta obra já existe. Pode adicionar novos exemplares.',
         'info'
       );
 
-    } else if (result.encontrado) {
+    } else if (
+      result.encontrado
+    ) {
 
       showBookMessage(
         `Dados encontrados através de ${result.fonte}. Confirme antes de guardar.`,
@@ -266,6 +1185,7 @@ async function searchISBN() {
       );
     }
 
+
   } catch (err) {
 
     showBookMessage(
@@ -276,7 +1196,10 @@ async function searchISBN() {
 }
 
 
-function fillBookForm(work) {
+
+function fillBookForm(
+  work
+) {
 
   setValue(
     'isbn',
@@ -328,18 +1251,27 @@ function fillBookForm(work) {
     work.CAPA_URL
   );
 
+
   updateCoverPreview(
     work.CAPA_URL
   );
 }
 
 
-function setValue(id, value) {
+
+function setValue(
+  id,
+  value
+) {
 
   const el =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (el) {
+
     el.value =
       value == null
         ? ''
@@ -348,33 +1280,54 @@ function setValue(id, value) {
 }
 
 
-function updateCoverPreview(url) {
+
+function updateCoverPreview(
+  url
+) {
 
   const img =
     document.getElementById(
       'coverPreview'
     );
 
+
   const placeholder =
     document.getElementById(
       'coverPlaceholder'
     );
 
+
   if (url) {
 
-    img.src = url;
-    img.style.display = 'block';
+    img.src =
+      url;
+
+    img.style.display =
+      'block';
+
     placeholder.style.display =
       'none';
 
+
   } else {
 
-    img.removeAttribute('src');
-    img.style.display = 'none';
+    img.removeAttribute(
+      'src'
+    );
+
+    img.style.display =
+      'none';
+
     placeholder.style.display =
       'flex';
   }
 }
+
+
+
+/* ============================================
+   GUARDAR LIVRO
+============================================ */
 
 
 async function saveBook() {
@@ -384,10 +1337,12 @@ async function saveBook() {
       'saveBookBtn'
     );
 
+
   const titulo =
     document.getElementById(
       'titulo'
     ).value.trim();
+
 
   const quantidade =
     Number(
@@ -409,7 +1364,9 @@ async function saveBook() {
 
 
   if (
-    !Number.isInteger(quantidade) ||
+    !Number.isInteger(
+      quantidade
+    ) ||
     quantidade < 1
   ) {
 
@@ -432,7 +1389,8 @@ async function saveBook() {
         'isbn'
       ).value.trim(),
 
-    titulo: titulo,
+    titulo:
+      titulo,
 
     autor:
       document.getElementById(
@@ -474,7 +1432,8 @@ async function saveBook() {
         'capaUrl'
       ).value.trim(),
 
-    quantidade: quantidade,
+    quantidade:
+      quantidade,
 
     estante:
       document.getElementById(
@@ -493,7 +1452,9 @@ async function saveBook() {
   };
 
 
-  btn.disabled = true;
+  btn.disabled =
+    true;
+
   btn.textContent =
     'A guardar...';
 
@@ -501,9 +1462,13 @@ async function saveBook() {
   try {
 
     const response =
-      await apiPost(payload);
+      await apiPost(
+        payload
+      );
+
 
     if (!response.success) {
+
       throw new Error(
         response.message
       );
@@ -520,6 +1485,7 @@ async function saveBook() {
 
     await refreshCatalog();
 
+
   } catch (err) {
 
     showBookMessage(
@@ -527,13 +1493,17 @@ async function saveBook() {
       'error'
     );
 
+
   } finally {
 
-    btn.disabled = false;
+    btn.disabled =
+      false;
+
     btn.textContent =
       'Guardar Livro';
   }
 }
+
 
 
 function clearBookForm() {
@@ -550,8 +1520,13 @@ function clearBookForm() {
     'descricao',
     'capaUrl',
     'estante'
-  ].forEach(id => {
-    setValue(id, '');
+  ]
+  .forEach(id => {
+
+    setValue(
+      id,
+      ''
+    );
   });
 
 
@@ -563,18 +1538,23 @@ function clearBookForm() {
 
   document.getElementById(
     'estadoFisico'
-  ).value = 'bom';
+  ).value =
+    'bom';
 
 
-  updateCoverPreview('');
+  updateCoverPreview(
+    ''
+  );
+
 
   clearBookMessage();
 }
 
 
-/* ===============================
-   CÂMARA / BARCODE
-================================ */
+
+/* ============================================
+   CÂMARA ISBN
+============================================ */
 
 
 function openScanner() {
@@ -583,6 +1563,7 @@ function openScanner() {
     document.getElementById(
       'scannerModal'
     );
+
 
   modal.classList.remove(
     'hidden'
@@ -620,7 +1601,8 @@ function openScanner() {
       height: 140
     },
 
-    aspectRatio: 1.777778,
+    aspectRatio:
+      1.777778,
 
     formatsToSupport: [
       Html5QrcodeSupportedFormats.EAN_13,
@@ -633,6 +1615,7 @@ function openScanner() {
 
 
   scanner.start(
+
     {
       facingMode:
         'environment'
@@ -643,7 +1626,9 @@ function openScanner() {
     async decodedText => {
 
       const code =
-        String(decodedText || '')
+        String(
+          decodedText || ''
+        )
         .replace(
           /[^0-9Xx]/g,
           ''
@@ -654,13 +1639,15 @@ function openScanner() {
         code.length !== 10 &&
         code.length !== 13
       ) {
+
         return;
       }
 
 
       document.getElementById(
         'isbn'
-      ).value = code;
+      ).value =
+        code;
 
 
       await closeScanner();
@@ -669,25 +1656,32 @@ function openScanner() {
     },
 
     () => {
-      // Erros durante leitura são normais.
+      // Ignorar leituras falhadas.
     }
 
   )
   .then(() => {
-    scannerRunning = true;
-  })
-  .catch(err => {
 
-    scannerRunning = false;
+    scannerRunning =
+      true;
+
+  })
+  .catch(() => {
+
+    scannerRunning =
+      false;
+
 
     showBookMessage(
-      'Não foi possível abrir a câmara. Verifique a permissão do navegador.',
+      'Não foi possível abrir a câmara. Verifique as permissões.',
       'error'
     );
+
 
     closeScanner();
   });
 }
+
 
 
 async function closeScanner() {
@@ -704,15 +1698,20 @@ async function closeScanner() {
   ) {
 
     try {
+
       await scanner.stop();
+
     } catch (err) {
       // Ignorar.
     }
   }
 
 
-  scannerRunning = false;
-  scanner = null;
+  scannerRunning =
+    false;
+
+  scanner =
+    null;
 
 
   const reader =
@@ -720,7 +1719,11 @@ async function closeScanner() {
       'reader'
     );
 
-  reader.innerHTML = '';
+
+  if (reader) {
+
+    reader.innerHTML = '';
+  }
 
 
   modal.classList.add(
@@ -729,9 +1732,101 @@ async function closeScanner() {
 }
 
 
-/* ===============================
-   MENSAGENS
-================================ */
+
+/* ============================================
+   FORMATAÇÃO
+============================================ */
+
+
+function formatPhysicalState(
+  value
+) {
+
+  const map = {
+    novo:
+      'Novo',
+    bom:
+      'Bom',
+    razoavel:
+      'Razoável',
+    danificado:
+      'Danificado'
+  };
+
+
+  return map[
+    String(value || '')
+    .toLowerCase()
+  ] || value || '';
+}
+
+
+
+function formatSituation(
+  value
+) {
+
+  const map = {
+    disponivel:
+      'Disponível',
+    emprestado:
+      'Emprestado',
+    reservado:
+      'Reservado',
+    perdido:
+      'Perdido',
+    danificado:
+      'Danificado',
+    inactivo:
+      'Inactivo'
+  };
+
+
+  return map[
+    String(value || '')
+    .toLowerCase()
+  ] || value || '';
+}
+
+
+
+function getSituationClass(
+  value
+) {
+
+  const status =
+    String(
+      value || ''
+    )
+    .toLowerCase();
+
+
+  if (
+    status ===
+    'disponivel'
+  ) {
+
+    return 'status-available';
+  }
+
+
+  if (
+    status ===
+    'emprestado'
+  ) {
+
+    return 'status-loaned';
+  }
+
+
+  return 'status-neutral';
+}
+
+
+
+/* ============================================
+   MENSAGENS / ESCAPE
+============================================ */
 
 
 function showBookMessage(
@@ -744,12 +1839,16 @@ function showBookMessage(
       'bookMsg'
     );
 
+
   box.innerHTML = `
     <div class="message ${type}">
-      ${escapeHtml(message)}
+      ${escapeHtml(
+        message
+      )}
     </div>
   `;
 }
+
 
 
 function clearBookMessage() {
@@ -759,18 +1858,59 @@ function clearBookMessage() {
       'bookMsg'
     );
 
+
   if (box) {
+
     box.innerHTML = '';
   }
 }
 
 
-function escapeHtml(value) {
 
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+function escapeHtml(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replaceAll(
+    '&',
+    '&amp;'
+  )
+  .replaceAll(
+    '<',
+    '&lt;'
+  )
+  .replaceAll(
+    '>',
+    '&gt;'
+  )
+  .replaceAll(
+    '"',
+    '&quot;'
+  )
+  .replaceAll(
+    "'",
+    '&#039;'
+  );
+}
+
+
+
+function escapeJsValue(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replaceAll(
+    '\\',
+    '\\\\'
+  )
+  .replaceAll(
+    "'",
+    "\\'"
+  );
 }
