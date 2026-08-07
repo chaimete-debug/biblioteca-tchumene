@@ -1,4 +1,5 @@
-const SESSION_KEY = 'biblioteca_session';
+const SESSION_KEY =
+  'biblioteca_session';
 
 
 function saveSession(session) {
@@ -62,42 +63,9 @@ function isAdminSession_(session) {
     );
 
   return (
-    profile === 'administrador' ||
+    profile ===
+      'administrador' ||
     profile === 'admin'
-  );
-}
-
-
-function isLibrarianSession_(session) {
-  if (!session) {
-    return false;
-  }
-
-  const profile =
-    normalizeClientProfile_(
-      session.perfil
-    );
-
-  return (
-    profile === 'bibliotecario' ||
-    profile === 'bibliotecaria'
-  );
-}
-
-
-function isConsultationSession_(session) {
-  if (!session) {
-    return false;
-  }
-
-  const profile =
-    normalizeClientProfile_(
-      session.perfil
-    );
-
-  return (
-    profile === 'consulta' ||
-    profile === 'visualizador'
   );
 }
 
@@ -110,7 +78,6 @@ function requireAuth() {
     !session ||
     !session.token
   ) {
-
     clearSession();
 
     window.location.href =
@@ -140,7 +107,6 @@ function requireAdmin() {
       session
     )
   ) {
-
     window.location.href =
       'dashboard.html';
 
@@ -152,14 +118,6 @@ function requireAdmin() {
 
 
 function applyRoleNavigation_(session) {
-  if (
-    !isAdminSession_(
-      session
-    )
-  ) {
-    return;
-  }
-
   const sidebar =
     document.querySelector(
       '.sidebar'
@@ -169,70 +127,125 @@ function applyRoleNavigation_(session) {
     return;
   }
 
+
+  /* RELATÓRIOS */
+
   if (
-    sidebar.querySelector(
+    !sidebar.querySelector(
+      '[data-reports-menu]'
+    )
+  ) {
+    const reports =
+      document.createElement(
+        'a'
+      );
+
+    reports.href =
+      'reports.html';
+
+    reports.textContent =
+      'Relatórios';
+
+    reports.setAttribute(
+      'data-reports-menu',
+      '1'
+    );
+
+    if (
+      window.location.pathname
+        .endsWith(
+          '/reports.html'
+        )
+    ) {
+      reports.classList.add(
+        'active'
+      );
+    }
+
+    const accountLink =
+      [...sidebar.querySelectorAll(
+        'a'
+      )]
+      .find(
+        item =>
+          item.textContent
+            .trim()
+            .toLowerCase()
+          === 'minha conta'
+      );
+
+    if (accountLink) {
+      sidebar.insertBefore(
+        reports,
+        accountLink
+      );
+    } else {
+      sidebar.appendChild(
+        reports
+      );
+    }
+  }
+
+
+  /* ADMINISTRAÇÃO */
+
+  if (
+    isAdminSession_(
+      session
+    ) &&
+    !sidebar.querySelector(
       '[data-admin-menu]'
     )
   ) {
-    return;
-  }
-
-  const link =
-    document.createElement(
-      'a'
-    );
-
-  link.href =
-    'admin.html';
-
-  link.textContent =
-    'Administração';
-
-  link.setAttribute(
-    'data-admin-menu',
-    '1'
-  );
-
-  if (
-    window.location.pathname
-      .endsWith(
-        '/admin.html'
-      )
-  ) {
-
-    link.classList.add(
-      'active'
-    );
-  }
-
-  const links =
-    Array.from(
-      sidebar.querySelectorAll(
+    const admin =
+      document.createElement(
         'a'
-      )
+      );
+
+    admin.href =
+      'admin.html';
+
+    admin.textContent =
+      'Administração';
+
+    admin.setAttribute(
+      'data-admin-menu',
+      '1'
     );
 
-  const logoutLink =
-    links.find(
-      item =>
-        item.textContent
-          .trim()
-          .toLowerCase()
-        === 'sair'
-    );
+    if (
+      window.location.pathname
+        .endsWith(
+          '/admin.html'
+        )
+    ) {
+      admin.classList.add(
+        'active'
+      );
+    }
 
-  if (logoutLink) {
+    const logoutLink =
+      [...sidebar.querySelectorAll(
+        'a'
+      )]
+      .find(
+        item =>
+          item.textContent
+            .trim()
+            .toLowerCase()
+          === 'sair'
+      );
 
-    sidebar.insertBefore(
-      link,
-      logoutLink
-    );
-
-  } else {
-
-    sidebar.appendChild(
-      link
-    );
+    if (logoutLink) {
+      sidebar.insertBefore(
+        admin,
+        logoutLink
+      );
+    } else {
+      sidebar.appendChild(
+        admin
+      );
+    }
   }
 }
 
@@ -242,24 +255,18 @@ async function logout() {
     getSession();
 
   try {
-
     if (
       session &&
       session.token &&
-      typeof apiPost === 'function'
+      typeof apiPost ===
+        'function'
     ) {
-
       await apiPost({
-        action: 'logout'
+        action:
+          'logout'
       });
     }
-
-  } catch (err) {
-    /*
-     * Mesmo que o backend não responda,
-     * encerramos a sessão local.
-     */
-  }
+  } catch (err) {}
 
   clearSession();
 
