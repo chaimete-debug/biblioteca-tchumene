@@ -28,7 +28,9 @@ document.addEventListener(
 );
 
 
+
 async function loadAdministration() {
+
   await Promise.all([
     loadAdminOverview(),
     loadAdminUsers(),
@@ -40,16 +42,21 @@ async function loadAdministration() {
 }
 
 
-/* VISÃO GERAL */
+
+/* =====================================
+   VISÃO GERAL
+===================================== */
 
 
 async function loadAdminOverview() {
+
   const res =
     await apiGet(
       'getAdminOverview'
     );
 
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -58,23 +65,28 @@ async function loadAdminOverview() {
     return;
   }
 
+
   const data =
     res.data || {};
+
 
   setText_(
     'adminUsersCount',
     data.utilizadores || 0
   );
 
+
   setText_(
     'adminActiveUsersCount',
     data.utilizadoresActivos || 0
   );
 
+
   setText_(
     'adminCategoriesCount',
     data.categorias || 0
   );
+
 
   setText_(
     'adminShelvesCount',
@@ -83,16 +95,22 @@ async function loadAdminOverview() {
 }
 
 
-/* UTILIZADORES */
+
+/* =====================================
+   UTILIZADORES
+===================================== */
 
 
 async function loadAdminUsers() {
+
   const res =
     await apiGet(
       'getAdminUsers'
     );
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -101,6 +119,7 @@ async function loadAdminUsers() {
     return;
   }
 
+
   adminUsers =
     Array.isArray(
       res.data
@@ -108,19 +127,25 @@ async function loadAdminUsers() {
       ? res.data
       : [];
 
+
   renderAdminUsers();
 }
 
 
+
 function renderAdminUsers() {
+
   const tbody =
     document.getElementById(
       'adminUsersTable'
     );
 
+
   tbody.innerHTML = '';
 
+
   if (!adminUsers.length) {
+
     tbody.innerHTML = `
       <tr>
         <td
@@ -135,39 +160,69 @@ function renderAdminUsers() {
     return;
   }
 
+
   adminUsers.forEach(
     user => {
 
       const active =
         String(
           user.ESTADO || ''
-        ).toLowerCase()
+        )
+        .trim()
+        .toLowerCase()
         === 'activo';
+
+
+      const profileLabel =
+        formatProfileLabel(
+          user.PERFIL
+        );
+
 
       tbody.insertAdjacentHTML(
         'beforeend',
         `
           <tr>
 
-            <td>
-              ${escapeAdminHtml(
-                user.NOME
-              )}
+            <td data-label="Nome">
+
+              <strong>
+                ${escapeAdminHtml(
+                  user.NOME || ''
+                )}
+              </strong>
+
             </td>
 
-            <td>
-              ${escapeAdminHtml(
-                user.EMAIL
-              )}
+
+            <td data-label="Email">
+
+              <span class="admin-email">
+
+                ${escapeAdminHtml(
+                  user.EMAIL || ''
+                )}
+
+              </span>
+
             </td>
 
-            <td>
-              ${escapeAdminHtml(
-                user.PERFIL
-              )}
+
+            <td data-label="Perfil">
+
+              <span class="admin-profile-badge">
+
+                ${escapeAdminHtml(
+                  profileLabel
+                )}
+
+              </span>
+
             </td>
 
-            <td>
+
+            <td data-label="Estado">
+
               <span
                 class="${
                   active
@@ -175,17 +230,22 @@ function renderAdminUsers() {
                     : 'status-neutral'
                 }"
               >
+
                 ${
                   active
                     ? 'Activo'
                     : 'Inactivo'
                 }
+
               </span>
+
             </td>
 
-            <td>
+
+            <td data-label="Acções">
 
               <div class="admin-action-group">
+
 
                 <button
                   class="btn btn-small btn-secondary"
@@ -202,12 +262,15 @@ function renderAdminUsers() {
                     )
                   "
                 >
+
                   ${
                     active
                       ? 'Desactivar'
                       : 'Activar'
                   }
+
                 </button>
+
 
                 <button
                   class="btn btn-small"
@@ -222,6 +285,7 @@ function renderAdminUsers() {
                   Password
                 </button>
 
+
               </div>
 
             </td>
@@ -234,9 +298,71 @@ function renderAdminUsers() {
 }
 
 
+
+/*
+ * Normalização apenas visual.
+ *
+ * Não altera os dados existentes
+ * no Google Sheets.
+ */
+function formatProfileLabel(
+  value
+) {
+
+  const normalized =
+    String(value || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(
+        /[\u0300-\u036f]/g,
+        ''
+      );
+
+
+  if (
+    normalized === 'admin' ||
+    normalized === 'administrador'
+  ) {
+
+    return 'Administrador';
+  }
+
+
+  if (
+    normalized === 'bibliotecario' ||
+    normalized === 'bibliotecaria'
+  ) {
+
+    return 'Bibliotecário';
+  }
+
+
+  if (
+    normalized === 'consulta' ||
+    normalized === 'visualizador'
+  ) {
+
+    return 'Consulta';
+  }
+
+
+  if (!value) {
+
+    return 'Não definido';
+  }
+
+
+  return String(value);
+}
+
+
+
 async function createAdminUser() {
+
   const res =
     await apiPost({
+
       action:
         'addAdminUser',
 
@@ -259,9 +385,12 @@ async function createAdminUser() {
         value_(
           'adminUserProfile'
         )
+
     });
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -270,37 +399,54 @@ async function createAdminUser() {
     return;
   }
 
+
   showAdminMessage(
     res.message,
     'success'
   );
+
 
   setValue_(
     'adminUserName',
     ''
   );
 
+
   setValue_(
     'adminUserEmail',
     ''
   );
+
 
   setValue_(
     'adminUserPassword',
     ''
   );
 
+
+  setValue_(
+    'adminUserProfile',
+    'Bibliotecário'
+  );
+
+
   await loadAdminUsers();
+
   await loadAdminOverview();
+
+  await loadAudit();
 }
+
 
 
 async function toggleUserStatus(
   id,
   estado
 ) {
+
   const res =
     await apiPost({
+
       action:
         'setAdminUserStatus',
 
@@ -309,7 +455,9 @@ async function toggleUserStatus(
 
       estado:
         estado
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -318,27 +466,37 @@ async function toggleUserStatus(
       : 'error'
   );
 
+
   if (res.success) {
+
     await loadAdminUsers();
+
     await loadAdminOverview();
+
+    await loadAudit();
   }
 }
+
 
 
 async function resetUserPassword(
   id
 ) {
+
   const password =
     window.prompt(
       'Introduza a nova password temporária (mínimo 6 caracteres):'
     );
 
+
   if (!password) {
     return;
   }
 
+
   const res =
     await apiPost({
+
       action:
         'resetAdminUserPassword',
 
@@ -347,7 +505,9 @@ async function resetUserPassword(
 
       password:
         password
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -355,19 +515,31 @@ async function resetUserPassword(
       ? 'success'
       : 'error'
   );
+
+
+  if (res.success) {
+
+    await loadAudit();
+  }
 }
 
 
-/* CATEGORIAS */
+
+/* =====================================
+   CATEGORIAS
+===================================== */
 
 
 async function loadCategories() {
+
   const res =
     await apiGet(
       'getAdminCategories'
     );
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -376,6 +548,7 @@ async function loadCategories() {
     return;
   }
 
+
   adminCategories =
     Array.isArray(
       res.data
@@ -383,32 +556,41 @@ async function loadCategories() {
       ? res.data
       : [];
 
+
   renderCategories();
 }
 
 
+
 function renderCategories() {
+
   const tbody =
     document.getElementById(
       'categoriesTable'
     );
 
+
   tbody.innerHTML = '';
 
+
   if (!adminCategories.length) {
+
     tbody.innerHTML = `
       <tr>
+
         <td
           colspan="4"
           class="empty-table"
         >
           Nenhuma categoria.
         </td>
+
       </tr>
     `;
 
     return;
   }
+
 
   adminCategories.forEach(
     item => {
@@ -416,8 +598,10 @@ function renderCategories() {
       const active =
         String(
           item.ESTADO || ''
-        ).toLowerCase()
+        )
+        .toLowerCase()
         !== 'inactivo';
+
 
       tbody.insertAdjacentHTML(
         'beforeend',
@@ -425,10 +609,15 @@ function renderCategories() {
           <tr>
 
             <td>
-              ${escapeAdminHtml(
-                item.NOME
-              )}
+
+              <strong>
+                ${escapeAdminHtml(
+                  item.NOME
+                )}
+              </strong>
+
             </td>
+
 
             <td>
               ${escapeAdminHtml(
@@ -436,13 +625,27 @@ function renderCategories() {
               )}
             </td>
 
+
             <td>
-              ${
-                active
-                  ? 'Activo'
-                  : 'Inactivo'
-              }
+
+              <span
+                class="${
+                  active
+                    ? 'status-active'
+                    : 'status-neutral'
+                }"
+              >
+
+                ${
+                  active
+                    ? 'Activo'
+                    : 'Inactivo'
+                }
+
+              </span>
+
             </td>
+
 
             <td>
 
@@ -461,11 +664,13 @@ function renderCategories() {
                   )
                 "
               >
+
                 ${
                   active
                     ? 'Desactivar'
                     : 'Activar'
                 }
+
               </button>
 
             </td>
@@ -478,9 +683,12 @@ function renderCategories() {
 }
 
 
+
 async function createCategory() {
+
   const res =
     await apiPost({
+
       action:
         'addAdminCategory',
 
@@ -493,7 +701,9 @@ async function createCategory() {
         value_(
           'categoryDescription'
         )
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -502,29 +712,39 @@ async function createCategory() {
       : 'error'
   );
 
+
   if (res.success) {
+
     setValue_(
       'categoryName',
       ''
     );
+
 
     setValue_(
       'categoryDescription',
       ''
     );
 
+
     await loadCategories();
+
     await loadAdminOverview();
+
+    await loadAudit();
   }
 }
+
 
 
 async function toggleCategory(
   id,
   estado
 ) {
+
   const res =
     await apiPost({
+
       action:
         'setAdminCategoryStatus',
 
@@ -533,7 +753,9 @@ async function toggleCategory(
 
       estado:
         estado
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -542,23 +764,34 @@ async function toggleCategory(
       : 'error'
   );
 
+
   if (res.success) {
+
     await loadCategories();
+
     await loadAdminOverview();
+
+    await loadAudit();
   }
 }
 
 
-/* ESTANTES */
+
+/* =====================================
+   ESTANTES
+===================================== */
 
 
 async function loadShelves() {
+
   const res =
     await apiGet(
       'getAdminShelves'
     );
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -567,6 +800,7 @@ async function loadShelves() {
     return;
   }
 
+
   adminShelves =
     Array.isArray(
       res.data
@@ -574,32 +808,41 @@ async function loadShelves() {
       ? res.data
       : [];
 
+
   renderShelves();
 }
 
 
+
 function renderShelves() {
+
   const tbody =
     document.getElementById(
       'shelvesTable'
     );
 
+
   tbody.innerHTML = '';
 
+
   if (!adminShelves.length) {
+
     tbody.innerHTML = `
       <tr>
+
         <td
           colspan="5"
           class="empty-table"
         >
           Nenhuma estante.
         </td>
+
       </tr>
     `;
 
     return;
   }
+
 
   adminShelves.forEach(
     item => {
@@ -607,8 +850,10 @@ function renderShelves() {
       const active =
         String(
           item.ESTADO || ''
-        ).toLowerCase()
+        )
+        .toLowerCase()
         !== 'inactivo';
+
 
       tbody.insertAdjacentHTML(
         'beforeend',
@@ -616,12 +861,15 @@ function renderShelves() {
           <tr>
 
             <td>
+
               <strong>
                 ${escapeAdminHtml(
                   item.CODIGO
                 )}
               </strong>
+
             </td>
+
 
             <td>
               ${escapeAdminHtml(
@@ -629,19 +877,34 @@ function renderShelves() {
               )}
             </td>
 
+
             <td>
               ${escapeAdminHtml(
                 item.LOCALIZACAO
               )}
             </td>
 
+
             <td>
-              ${
-                active
-                  ? 'Activo'
-                  : 'Inactivo'
-              }
+
+              <span
+                class="${
+                  active
+                    ? 'status-active'
+                    : 'status-neutral'
+                }"
+              >
+
+                ${
+                  active
+                    ? 'Activo'
+                    : 'Inactivo'
+                }
+
+              </span>
+
             </td>
+
 
             <td>
 
@@ -660,11 +923,13 @@ function renderShelves() {
                   )
                 "
               >
+
                 ${
                   active
                     ? 'Desactivar'
                     : 'Activar'
                 }
+
               </button>
 
             </td>
@@ -677,9 +942,12 @@ function renderShelves() {
 }
 
 
+
 async function createShelf() {
+
   const res =
     await apiPost({
+
       action:
         'addAdminShelf',
 
@@ -697,7 +965,9 @@ async function createShelf() {
         value_(
           'shelfLocation'
         )
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -706,34 +976,45 @@ async function createShelf() {
       : 'error'
   );
 
+
   if (res.success) {
+
     setValue_(
       'shelfCode',
       ''
     );
+
 
     setValue_(
       'shelfDescription',
       ''
     );
 
+
     setValue_(
       'shelfLocation',
       ''
     );
 
+
     await loadShelves();
+
     await loadAdminOverview();
+
+    await loadAudit();
   }
 }
+
 
 
 async function toggleShelf(
   id,
   estado
 ) {
+
   const res =
     await apiPost({
+
       action:
         'setAdminShelfStatus',
 
@@ -742,7 +1023,9 @@ async function toggleShelf(
 
       estado:
         estado
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -751,23 +1034,34 @@ async function toggleShelf(
       : 'error'
   );
 
+
   if (res.success) {
+
     await loadShelves();
+
     await loadAdminOverview();
+
+    await loadAudit();
   }
 }
 
 
-/* CONFIGURAÇÃO */
+
+/* =====================================
+   CONFIGURAÇÃO
+===================================== */
 
 
 async function loadConfiguration() {
+
   const res =
     await apiGet(
       'getAdminConfig'
     );
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -776,15 +1070,18 @@ async function loadConfiguration() {
     return;
   }
 
+
   setValue_(
     'configLibraryName',
     res.data.NOME_BIBLIOTECA
   );
 
+
   setValue_(
     'configLoanDays',
     res.data.PRAZO_EMPRESTIMO_DIAS
   );
+
 
   setValue_(
     'configFinePerDay',
@@ -793,9 +1090,12 @@ async function loadConfiguration() {
 }
 
 
+
 async function saveConfiguration() {
+
   const res =
     await apiPost({
+
       action:
         'saveAdminConfig',
 
@@ -813,7 +1113,9 @@ async function saveConfiguration() {
         value_(
           'configFinePerDay'
         )
+
     });
+
 
   showAdminMessage(
     res.message,
@@ -821,13 +1123,23 @@ async function saveConfiguration() {
       ? 'success'
       : 'error'
   );
+
+
+  if (res.success) {
+
+    await loadAudit();
+  }
 }
 
 
-/* AUDITORIA */
+
+/* =====================================
+   AUDITORIA
+===================================== */
 
 
 async function loadAudit() {
+
   const res =
     await apiGet(
       'getAdminAudit',
@@ -836,7 +1148,9 @@ async function loadAudit() {
       }
     );
 
+
   if (!res.success) {
+
     showAdminMessage(
       res.message,
       'error'
@@ -845,12 +1159,15 @@ async function loadAudit() {
     return;
   }
 
+
   const tbody =
     document.getElementById(
       'auditTable'
     );
 
+
   tbody.innerHTML = '';
+
 
   const rows =
     Array.isArray(
@@ -859,20 +1176,25 @@ async function loadAudit() {
       ? res.data
       : [];
 
+
   if (!rows.length) {
+
     tbody.innerHTML = `
       <tr>
+
         <td
           colspan="5"
           class="empty-table"
         >
           Sem movimentos registados.
         </td>
+
       </tr>
     `;
 
     return;
   }
+
 
   rows.forEach(
     row => {
@@ -931,17 +1253,22 @@ async function loadAudit() {
 }
 
 
-/* HELPERS */
+
+/* =====================================
+   HELPERS
+===================================== */
 
 
 function showAdminMessage(
   message,
   type
 ) {
+
   const box =
     document.getElementById(
       'adminMsg'
     );
+
 
   box.innerHTML = `
     <div class="message ${type}">
@@ -951,6 +1278,7 @@ function showAdminMessage(
     </div>
   `;
 
+
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
@@ -958,24 +1286,37 @@ function showAdminMessage(
 }
 
 
+
 function value_(id) {
+
   const el =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   return el
-    ? String(el.value || '').trim()
+    ? String(
+        el.value || ''
+      ).trim()
     : '';
 }
+
 
 
 function setValue_(
   id,
   value
 ) {
+
   const el =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (el) {
+
     el.value =
       value == null
         ? ''
@@ -984,14 +1325,20 @@ function setValue_(
 }
 
 
+
 function setText_(
   id,
   value
 ) {
+
   const el =
-    document.getElementById(id);
+    document.getElementById(
+      id
+    );
+
 
   if (el) {
+
     el.textContent =
       value == null
         ? ''
@@ -1000,24 +1347,51 @@ function setText_(
 }
 
 
-function escapeAdminHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+
+function escapeAdminHtml(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replaceAll(
+    '&',
+    '&amp;'
+  )
+  .replaceAll(
+    '<',
+    '&lt;'
+  )
+  .replaceAll(
+    '>',
+    '&gt;'
+  )
+  .replaceAll(
+    '"',
+    '&quot;'
+  )
+  .replaceAll(
+    "'",
+    '&#039;'
+  );
 }
 
 
-function escapeAdminJs(value) {
-  return String(value ?? '')
-    .replaceAll(
-      '\\',
-      '\\\\'
-    )
-    .replaceAll(
-      "'",
-      "\\'"
-    );
+
+function escapeAdminJs(
+  value
+) {
+
+  return String(
+    value ?? ''
+  )
+  .replaceAll(
+    '\\',
+    '\\\\'
+  )
+  .replaceAll(
+    "'",
+    "\\'"
+  );
 }
