@@ -30,9 +30,7 @@
 
   <aside class="sidebar">
 
-    <h2>
-      Biblioteca
-    </h2>
+    <h2>Biblioteca</h2>
 
     <a href="dashboard.html">
       Dashboard
@@ -80,7 +78,7 @@
         </h1>
 
         <p class="page-subtitle">
-          Empréstimos e devoluções por exemplar
+          Circulação por QR do leitor e do exemplar
         </p>
 
       </div>
@@ -104,7 +102,7 @@
 
 
     <!-- =================================
-         EMPRÉSTIMO
+         NOVO EMPRÉSTIMO
     ================================== -->
 
 
@@ -120,27 +118,148 @@
           </h3>
 
           <p class="muted">
-            Digitalize o QR do exemplar ou introduza o código manualmente.
+            Primeiro identifique o leitor e depois o exemplar.
           </p>
 
         </div>
 
-
-        <button
-          class="btn btn-camera"
-          onclick="openLoanScanner()"
-        >
-          📷 Digitalizar Exemplar
-        </button>
-
       </div>
-
 
 
       <div id="loanMsg"></div>
 
 
-      <div class="form-grid">
+
+      <!-- LEITOR -->
+
+
+      <div
+        style="
+          border-bottom:1px solid #e5e7eb;
+          padding-bottom:20px;
+          margin-bottom:20px;
+        "
+      >
+
+
+        <div class="panel-heading">
+
+          <div>
+
+            <h3>
+              1. Leitor
+            </h3>
+
+            <p class="muted">
+              Digitalize o cartão QR ou introduza o código.
+            </p>
+
+          </div>
+
+
+          <button
+            class="btn btn-camera"
+            onclick="openReaderScanner()"
+          >
+            📷 Digitalizar Leitor
+          </button>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label>
+            Código do Leitor
+          </label>
+
+          <div class="input-with-button">
+
+            <input
+              id="readerCode"
+              placeholder="LEI-000001"
+              autocomplete="off"
+            >
+
+            <button
+              class="btn btn-secondary"
+              onclick="findReaderByCode()"
+            >
+              Procurar
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="readerPreview"
+          class="scan-result-card hidden"
+        >
+        </div>
+
+
+        <div
+          id="readerAlternativeBox"
+          style="margin-top:16px;"
+        >
+
+          <div class="form-group">
+
+            <label>
+              Ou seleccionar manualmente
+            </label>
+
+            <select
+              id="loanReader"
+              onchange="selectReaderFromDropdown()"
+            >
+
+              <option value="">
+                Seleccione o leitor
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- EXEMPLAR -->
+
+
+      <div>
+
+
+        <div class="panel-heading">
+
+          <div>
+
+            <h3>
+              2. Exemplar
+            </h3>
+
+            <p class="muted">
+              Digitalize a etiqueta QR do livro.
+            </p>
+
+          </div>
+
+
+          <button
+            class="btn btn-camera"
+            onclick="openLoanScanner()"
+          >
+            📷 Digitalizar Exemplar
+          </button>
+
+        </div>
 
 
         <div class="form-group">
@@ -159,7 +278,6 @@
 
             <button
               class="btn btn-secondary"
-              type="button"
               onclick="findLoanCopy()"
             >
               Procurar
@@ -170,31 +288,13 @@
         </div>
 
 
-
-        <div class="form-group">
-
-          <label>
-            Leitor
-          </label>
-
-          <select id="loanReader">
-
-            <option value="">
-              Seleccione o leitor
-            </option>
-
-          </select>
-
+        <div
+          id="loanCopyPreview"
+          class="scan-result-card hidden"
+        >
         </div>
 
-      </div>
 
-
-
-      <div
-        id="loanCopyPreview"
-        class="scan-result-card hidden"
-      >
       </div>
 
 
@@ -241,7 +341,7 @@
           </h3>
 
           <p class="muted">
-            Digitalize o exemplar devolvido.
+            Digitalize o QR do exemplar devolvido.
           </p>
 
         </div>
@@ -255,7 +355,6 @@
         </button>
 
       </div>
-
 
 
       <div id="returnMsg"></div>
@@ -287,13 +386,11 @@
       </div>
 
 
-
       <div
         id="returnPreview"
         class="scan-result-card hidden"
       >
       </div>
-
 
 
       <div class="form-actions">
@@ -338,7 +435,7 @@
           </h3>
 
           <p class="muted">
-            Exemplares actualmente fora da biblioteca.
+            Exemplares actualmente emprestados.
           </p>
 
         </div>
@@ -347,12 +444,11 @@
         <input
           id="loanSearch"
           class="table-search"
-          placeholder="Pesquisar..."
+          placeholder="Pesquisar leitor, livro ou exemplar..."
           oninput="renderOpenLoans()"
         >
 
       </div>
-
 
 
       <div class="table-wrap">
@@ -392,7 +488,7 @@
 
 
 <!-- =================================
-     MODAL DA CÂMARA
+     MODAL SCANNER
 ================================== -->
 
 
@@ -409,11 +505,14 @@
       <div>
 
         <h3 id="scannerTitle">
-          Digitalizar Exemplar
+          Digitalizar
         </h3>
 
-        <p class="muted">
-          Aponte a câmara para o QR Code do exemplar.
+        <p
+          id="scannerDescription"
+          class="muted"
+        >
+          Aponte a câmara para o QR Code.
         </p>
 
       </div>
@@ -435,9 +534,8 @@
 
     <div class="scanner-help">
 
-      <p>
-        O QR deve conter um código como
-        <strong>EXE-000001</strong>.
+      <p id="scannerHelpText">
+        Aponte a câmara para o código.
       </p>
 
     </div>
@@ -460,4 +558,5 @@
 
 
 </body>
+
 </html>
