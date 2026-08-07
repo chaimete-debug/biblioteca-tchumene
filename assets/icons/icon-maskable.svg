@@ -1,0 +1,38 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 512 512"
+>
+
+  <rect
+    width="512"
+    height="512"
+    fill="#0f172a"
+  />
+
+  <circle
+    cx="256"
+    cy="256"
+    r="190"
+    fill="#1e293b"
+  />
+
+  <path
+    d="
+      M135 150
+      C181 140 222 150 256 172
+      C290 150 331 140 377 150
+      V360
+      C333 352 294 361 256 384
+      C218 361 179 352 135 360
+      Z
+    "
+    fill="#ffffff"
+  />
+
+  <path
+    d="M256 172V384"
+    stroke="#0f172a"
+    stroke-width="16"
+  />
+
+</svg>
