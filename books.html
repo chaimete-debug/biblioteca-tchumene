@@ -2,111 +2,428 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Livros - Biblioteca</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Livros - Biblioteca Tchumene</title>
+
+  <link
+    rel="stylesheet"
+    href="assets/css/style.css"
+  >
 </head>
+
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h2>Biblioteca</h2>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="books.html" class="active">Livros</a>
-      <a href="readers.html">Leitores</a>
-      <a href="loans.html">Empréstimos</a>
-      <a href="#" onclick="logout()">Sair</a>
-    </aside>
 
-    <main class="main">
-      <div class="topbar">
+<div class="layout">
+
+  <aside class="sidebar">
+
+    <h2>Biblioteca</h2>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+    <a
+      href="books.html"
+      class="active"
+    >
+      Livros
+    </a>
+
+    <a href="readers.html">
+      Leitores
+    </a>
+
+    <a href="loans.html">
+      Empréstimos
+    </a>
+
+    <a
+      href="#"
+      onclick="logout()"
+    >
+      Sair
+    </a>
+
+  </aside>
+
+
+  <main class="main">
+
+    <div class="topbar">
+
+      <div>
         <h1>Livros</h1>
-        <div class="user-box">
-          <span id="userName"></span>
-          <button class="btn" onclick="submitBook()">Guardar Livro</button>
-        </div>
+
+        <p class="page-subtitle">
+          Obras e exemplares da biblioteca
+        </p>
       </div>
 
-      <div class="panel">
-        <h3>Novo Livro</h3>
+      <div class="user-box">
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Código</label>
-            <input id="codigo">
-          </div>
+        <span id="userName"></span>
 
-          <div class="form-group">
-            <label>Título</label>
-            <input id="titulo">
-          </div>
+        <button
+          class="btn btn-danger"
+          onclick="logout()"
+        >
+          Sair
+        </button>
 
-          <div class="form-group">
-            <label>Autor</label>
-            <input id="autor">
-          </div>
-
-          <div class="form-group">
-            <label>Categoria</label>
-            <input id="categoria">
-          </div>
-
-          <div class="form-group">
-            <label>Editora</label>
-            <input id="editora">
-          </div>
-
-          <div class="form-group">
-            <label>Ano</label>
-            <input id="ano">
-          </div>
-
-          <div class="form-group">
-            <label>ISBN</label>
-            <input id="isbn">
-          </div>
-
-          <div class="form-group">
-            <label>Quantidade Total</label>
-            <input id="quantidadeTotal" type="number">
-          </div>
-
-          <div class="form-group">
-            <label>Estante</label>
-            <input id="estante">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Observações</label>
-          <textarea id="observacoes"></textarea>
-        </div>
-
-        <div id="bookMsg"></div>
       </div>
 
-      <div class="panel">
-        <h3>Lista de Livros</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Categoria</th>
-                <th>Disponível</th>
-              </tr>
-            </thead>
-            <tbody id="booksTable"></tbody>
-          </table>
+    </div>
+
+
+    <!-- NOVO REGISTO -->
+
+    <div class="panel">
+
+      <div class="panel-heading">
+
+        <div>
+          <h3>Registar Livro</h3>
+
+          <p class="muted">
+            Digitalize o ISBN ou introduza os dados manualmente.
+          </p>
         </div>
+
+        <button
+          class="btn btn-camera"
+          onclick="openScanner()"
+        >
+          📷 Digitalizar ISBN
+        </button>
+
       </div>
-    </main>
+
+
+      <div id="bookMsg"></div>
+
+
+      <div class="book-entry-layout">
+
+        <div class="book-cover-box">
+
+          <img
+            id="coverPreview"
+            class="book-cover"
+            alt="Capa do livro"
+          >
+
+          <div
+            id="coverPlaceholder"
+            class="cover-placeholder"
+          >
+            Sem capa
+          </div>
+
+        </div>
+
+
+        <div class="book-form-area">
+
+          <div class="form-grid">
+
+            <div class="form-group">
+              <label>ISBN</label>
+
+              <div class="input-with-button">
+
+                <input
+                  id="isbn"
+                  inputmode="numeric"
+                  placeholder="978..."
+                >
+
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="searchISBN()"
+                >
+                  Procurar
+                </button>
+
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label>Título *</label>
+
+              <input id="titulo">
+            </div>
+
+
+            <div class="form-group">
+              <label>Autor</label>
+
+              <input id="autor">
+            </div>
+
+
+            <div class="form-group">
+              <label>Categoria</label>
+
+              <input
+                id="categoria"
+                placeholder="Ex.: Teologia"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label>Editora</label>
+
+              <input id="editora">
+            </div>
+
+
+            <div class="form-group">
+              <label>Ano</label>
+
+              <input
+                id="ano"
+                inputmode="numeric"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label>Idioma</label>
+
+              <input
+                id="idioma"
+                placeholder="Ex.: pt"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label>Edição</label>
+
+              <input id="edicao">
+            </div>
+
+
+            <div class="form-group">
+              <label>Quantidade de Exemplares *</label>
+
+              <input
+                id="quantidade"
+                type="number"
+                value="1"
+                min="1"
+                max="100"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label>Estante</label>
+
+              <input
+                id="estante"
+                placeholder="Ex.: A-03"
+              >
+            </div>
+
+
+            <div class="form-group">
+              <label>Estado físico</label>
+
+              <select id="estadoFisico">
+
+                <option value="novo">
+                  Novo
+                </option>
+
+                <option
+                  value="bom"
+                  selected
+                >
+                  Bom
+                </option>
+
+                <option value="razoavel">
+                  Razoável
+                </option>
+
+                <option value="danificado">
+                  Danificado
+                </option>
+
+              </select>
+            </div>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label>Descrição</label>
+
+            <textarea
+              id="descricao"
+              rows="4"
+            ></textarea>
+
+          </div>
+
+
+          <input
+            type="hidden"
+            id="capaUrl"
+          >
+
+
+          <div class="form-actions">
+
+            <button
+              class="btn"
+              id="saveBookBtn"
+              onclick="saveBook()"
+            >
+              Guardar Livro
+            </button>
+
+            <button
+              class="btn btn-secondary"
+              onclick="clearBookForm()"
+            >
+              Limpar
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- PESQUISA -->
+
+    <div class="panel">
+
+      <div class="panel-heading">
+
+        <div>
+          <h3>Catálogo</h3>
+
+          <p class="muted">
+            Obras registadas na biblioteca.
+          </p>
+        </div>
+
+
+        <div class="catalog-search">
+
+          <input
+            id="catalogSearch"
+            placeholder="Pesquisar título, autor, ISBN..."
+            oninput="renderWorks()"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Capa</th>
+              <th>ISBN</th>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Categoria</th>
+              <th>Exemplares</th>
+              <th>Disponíveis</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="worksTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- MODAL SCANNER -->
+
+<div
+  id="scannerModal"
+  class="modal-overlay hidden"
+>
+
+  <div class="modal-card scanner-card">
+
+    <div class="modal-header">
+
+      <div>
+        <h3>Digitalizar ISBN</h3>
+
+        <p class="muted">
+          Aponte a câmara para o código de barras do livro.
+        </p>
+      </div>
+
+      <button
+        class="modal-close"
+        onclick="closeScanner()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div id="reader"></div>
+
+
+    <div class="scanner-help">
+
+      <p>
+        Se a câmara não conseguir ler o código,
+        feche esta janela e introduza o ISBN manualmente.
+      </p>
+
+    </div>
+
   </div>
 
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/api.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/books.js"></script>
+</div>
+
+
+<!-- Leitor QR/Barcode -->
+<script
+  src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+></script>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/books.js"></script>
+
 </body>
 </html>
