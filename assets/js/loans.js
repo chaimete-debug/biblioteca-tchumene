@@ -3,12 +3,14 @@ let circulationUser = null;
 let readers = [];
 let openLoans = [];
 
+let selectedReader = null;
 let selectedCopy = null;
 let selectedReturnLoan = null;
 
 let circulationScanner = null;
 let circulationScannerRunning = false;
-let scannerMode = 'loan';
+
+let scannerMode = '';
 
 
 
@@ -36,6 +38,35 @@ document.addEventListener(
     await loadReaders();
 
     await loadOpenLoans();
+
+
+    /*
+     * Se veio da página do leitor:
+     *
+     * loans.html?reader=LEI-000001
+     */
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const readerCode =
+      params.get(
+        'reader'
+      );
+
+
+    if (readerCode) {
+
+      document.getElementById(
+        'readerCode'
+      ).value =
+        readerCode;
+
+
+      await findReaderByCode();
+    }
 
   }
 );
@@ -95,9 +126,13 @@ async function loadReaders() {
         === 'activo'
       )
       .sort((a, b) =>
-        String(a.NOME || '')
+        String(
+          a.NOME || ''
+        )
         .localeCompare(
-          String(b.NOME || '')
+          String(
+            b.NOME || ''
+          )
         )
       )
       .forEach(reader => {
@@ -113,19 +148,18 @@ async function loadReaders() {
 
 
         option.textContent =
-          reader.NOME;
+          `${reader.NOME}${
+            reader.CODIGO_LEITOR
+              ? ' - ' +
+                reader.CODIGO_LEITOR
+              : ''
+          }`;
 
 
         select.appendChild(
           option
         );
       });
-
-
-    select.addEventListener(
-      'change',
-      updateBorrowButton
-    );
 
 
   } catch (err) {
@@ -139,8 +173,262 @@ async function loadReaders() {
 
 
 
+async function findReaderByCode() {
+
+  const code =
+    normalizeClientCode(
+      document.getElementById(
+        'readerCode'
+      ).value
+    );
+
+
+  if (!code) {
+
+    showLoanMessage(
+      'Informe o código do leitor.',
+      'error'
+    );
+
+    return;
+  }
+
+
+  showLoanMessage(
+    'A procurar leitor...',
+    'info'
+  );
+
+
+  try {
+
+    const response =
+      await apiGet(
+        'getReaderByCode',
+        {
+          code: code
+        }
+      );
+
+
+    if (!response.success) {
+
+      throw new Error(
+        response.message
+      );
+    }
+
+
+    const reader =
+      response.data;
+
+
+    if (
+      String(
+        reader.ESTADO || ''
+      )
+      .toLowerCase()
+      !== 'activo'
+    ) {
+
+      throw new Error(
+        'Este leitor encontra-se inactivo.'
+      );
+    }
+
+
+    selectedReader =
+      reader;
+
+
+    document.getElementById(
+      'readerCode'
+    ).value =
+      reader.CODIGO_LEITOR || '';
+
+
+    document.getElementById(
+      'loanReader'
+    ).value =
+      reader.ID_LEITOR;
+
+
+    renderReaderPreview(
+      reader
+    );
+
+
+    showLoanMessage(
+      'Leitor identificado. Agora digitalize ou introduza o código do exemplar.',
+      'success'
+    );
+
+
+    updateBorrowButton();
+
+
+  } catch (err) {
+
+    selectedReader =
+      null;
+
+
+    document.getElementById(
+      'loanReader'
+    ).value = '';
+
+
+    hideElement(
+      'readerPreview'
+    );
+
+
+    updateBorrowButton();
+
+
+    showLoanMessage(
+      err.message,
+      'error'
+    );
+  }
+}
+
+
+
+function selectReaderFromDropdown() {
+
+  const idLeitor =
+    document.getElementById(
+      'loanReader'
+    ).value;
+
+
+  if (!idLeitor) {
+
+    selectedReader =
+      null;
+
+
+    document.getElementById(
+      'readerCode'
+    ).value = '';
+
+
+    hideElement(
+      'readerPreview'
+    );
+
+
+    updateBorrowButton();
+
+    return;
+  }
+
+
+  const reader =
+    readers.find(item =>
+      String(
+        item.ID_LEITOR
+      ) ===
+      String(
+        idLeitor
+      )
+    );
+
+
+  if (!reader) {
+
+    selectedReader =
+      null;
+
+    updateBorrowButton();
+
+    return;
+  }
+
+
+  selectedReader =
+    reader;
+
+
+  document.getElementById(
+    'readerCode'
+  ).value =
+    reader.CODIGO_LEITOR || '';
+
+
+  renderReaderPreview(
+    reader
+  );
+
+
+  updateBorrowButton();
+}
+
+
+
+function renderReaderPreview(
+  reader
+) {
+
+  const box =
+    document.getElementById(
+      'readerPreview'
+    );
+
+
+  box.innerHTML = `
+    <div>
+      <strong>
+        ${escapeCirculationHtml(
+          reader.NOME || ''
+        )}
+      </strong>
+    </div>
+
+    <div>
+      Código:
+      <strong>
+        ${escapeCirculationHtml(
+          reader.CODIGO_LEITOR || ''
+        )}
+      </strong>
+    </div>
+
+    <div>
+      Telefone:
+      ${escapeCirculationHtml(
+        reader.TELEFONE || '—'
+      )}
+    </div>
+
+    <div>
+      Tipo:
+      ${escapeCirculationHtml(
+        reader.TIPO_LEITOR || '—'
+      )}
+    </div>
+
+    <div>
+      Estado:
+      <strong>
+        ${escapeCirculationHtml(
+          reader.ESTADO || ''
+        )}
+      </strong>
+    </div>
+  `;
+
+
+  box.classList.remove(
+    'hidden'
+  );
+}
+
+
+
 /* ===================================
-   PESQUISA DE EXEMPLAR
+   EXEMPLARES
 =================================== */
 
 
@@ -197,7 +485,8 @@ async function findLoanCopy() {
     if (
       String(
         copy.SITUACAO || ''
-      ).toLowerCase()
+      )
+      .toLowerCase()
       !== 'disponivel'
     ) {
 
@@ -223,8 +512,12 @@ async function findLoanCopy() {
 
 
     showLoanMessage(
-      'Exemplar localizado. Seleccione o leitor e confirme o empréstimo.',
-      'success'
+      selectedReader
+        ? 'Leitor e exemplar identificados. Confirme o empréstimo.'
+        : 'Exemplar identificado. Falta identificar o leitor.',
+      selectedReader
+        ? 'success'
+        : 'info'
     );
 
 
@@ -233,11 +526,14 @@ async function findLoanCopy() {
 
   } catch (err) {
 
-    selectedCopy = null;
+    selectedCopy =
+      null;
+
 
     hideElement(
       'loanCopyPreview'
     );
+
 
     updateBorrowButton();
 
@@ -311,40 +607,28 @@ function renderLoanCopyPreview(
 
 
 
-function updateBorrowButton() {
-
-  const readerId =
-    document.getElementById(
-      'loanReader'
-    ).value;
-
-
-  document.getElementById(
-    'borrowBtn'
-  ).disabled =
-    !selectedCopy ||
-    !readerId;
-}
-
-
-
 /* ===================================
    CONFIRMAR EMPRÉSTIMO
 =================================== */
 
 
+function updateBorrowButton() {
+
+  document.getElementById(
+    'borrowBtn'
+  ).disabled =
+    !selectedReader ||
+    !selectedCopy;
+}
+
+
+
 async function confirmBorrow() {
 
-  const readerId =
-    document.getElementById(
-      'loanReader'
-    ).value;
-
-
-  if (!selectedCopy) {
+  if (!selectedReader) {
 
     showLoanMessage(
-      'Primeiro localize um exemplar.',
+      'Primeiro identifique o leitor.',
       'error'
     );
 
@@ -352,10 +636,10 @@ async function confirmBorrow() {
   }
 
 
-  if (!readerId) {
+  if (!selectedCopy) {
 
     showLoanMessage(
-      'Seleccione o leitor.',
+      'Primeiro identifique o exemplar.',
       'error'
     );
 
@@ -369,7 +653,9 @@ async function confirmBorrow() {
     );
 
 
-  btn.disabled = true;
+  btn.disabled =
+    true;
+
 
   btn.textContent =
     'A registar...';
@@ -379,19 +665,23 @@ async function confirmBorrow() {
 
     const response =
       await apiPost({
+
         action:
           'borrowCopyByCode',
 
         codigoExemplar:
-          selectedCopy.CODIGO_EXEMPLAR,
+          selectedCopy
+            .CODIGO_EXEMPLAR,
 
         idLeitor:
-          readerId,
+          selectedReader
+            .ID_LEITOR,
 
         operador:
           circulationUser.email ||
           circulationUser.nome ||
           ''
+
       });
 
 
@@ -430,6 +720,7 @@ async function confirmBorrow() {
     btn.textContent =
       'Confirmar Empréstimo';
 
+
     updateBorrowButton();
   }
 }
@@ -437,7 +728,7 @@ async function confirmBorrow() {
 
 
 /* ===================================
-   DEVOLUÇÕES
+   DEVOLUÇÃO
 =================================== */
 
 
@@ -624,7 +915,9 @@ async function confirmReturn() {
     );
 
 
-  btn.disabled = true;
+  btn.disabled =
+    true;
+
 
   btn.textContent =
     'A devolver...';
@@ -634,6 +927,7 @@ async function confirmReturn() {
 
     const response =
       await apiPost({
+
         action:
           'returnCopyByCode',
 
@@ -645,6 +939,7 @@ async function confirmReturn() {
           circulationUser.email ||
           circulationUser.nome ||
           ''
+
       });
 
 
@@ -712,6 +1007,7 @@ async function confirmReturn() {
 
     btn.textContent =
       'Confirmar Devolução';
+
 
     btn.disabled =
       !selectedReturnLoan;
@@ -811,12 +1107,14 @@ function renderOpenLoans() {
 
     tbody.innerHTML = `
       <tr>
+
         <td
           colspan="7"
           class="empty-table"
         >
           Não existem empréstimos activos.
         </td>
+
       </tr>
     `;
 
@@ -836,78 +1134,80 @@ function renderOpenLoans() {
       tbody.insertAdjacentHTML(
         'beforeend',
         `
-        <tr>
+          <tr>
 
-          <td>
-            <strong>
+            <td>
+              <strong>
+                ${escapeCirculationHtml(
+                  loan.CODIGO_EXEMPLAR || ''
+                )}
+              </strong>
+            </td>
+
+            <td>
               ${escapeCirculationHtml(
-                loan.CODIGO_EXEMPLAR || ''
+                loan.TITULO_LIVRO || ''
               )}
-            </strong>
-          </td>
+            </td>
 
-          <td>
-            ${escapeCirculationHtml(
-              loan.TITULO_LIVRO || ''
-            )}
-          </td>
+            <td>
+              ${escapeCirculationHtml(
+                loan.NOME_LEITOR || ''
+              )}
+            </td>
 
-          <td>
-            ${escapeCirculationHtml(
-              loan.NOME_LEITOR || ''
-            )}
-          </td>
+            <td>
+              ${escapeCirculationHtml(
+                formatClientDate(
+                  loan.DATA_EMPRESTIMO
+                )
+              )}
+            </td>
 
-          <td>
-            ${escapeCirculationHtml(
-              formatClientDate(
-                loan.DATA_EMPRESTIMO
-              )
-            )}
-          </td>
+            <td>
+              ${escapeCirculationHtml(
+                formatClientDate(
+                  loan.DATA_DEVOLUCAO_PREVISTA
+                )
+              )}
+            </td>
 
-          <td>
-            ${escapeCirculationHtml(
-              formatClientDate(
-                loan.DATA_DEVOLUCAO_PREVISTA
-              )
-            )}
-          </td>
+            <td>
 
-          <td>
+              <span
+                class="${
+                  overdue
+                    ? 'status-overdue'
+                    : 'status-active'
+                }"
+              >
+                ${
+                  overdue
+                    ? 'Atrasado'
+                    : 'Activo'
+                }
+              </span>
 
-            <span
-              class="${
-                overdue
-                  ? 'status-overdue'
-                  : 'status-active'
-              }"
-            >
-              ${
-                overdue
-                  ? 'Atrasado'
-                  : 'Activo'
-              }
-            </span>
+            </td>
 
-          </td>
+            <td>
 
-          <td>
+              <button
+                class="btn btn-small"
+                onclick="
+                  prepareReturnFromTable(
+                    '${escapeJsValue(
+                      loan.CODIGO_EXEMPLAR
+                    )}'
+                  )
+                "
+              >
+                Devolver
+              </button>
 
-            <button
-              class="btn btn-small"
-              onclick="prepareReturnFromTable(
-                '${escapeJsValue(
-                  loan.CODIGO_EXEMPLAR
-                )}'
-              )"
-            >
-              Devolver
-            </button>
+            </td>
 
-          </td>
-
-        </tr>
+          </tr>
         `
       );
     }
@@ -926,10 +1226,14 @@ function prepareReturnFromTable(
     code;
 
 
-  window.scrollTo({
-    top: 0,
+  document.getElementById(
+    'returnCopyCode'
+  ).scrollIntoView({
     behavior:
-      'smooth'
+      'smooth',
+
+    block:
+      'center'
   });
 
 
@@ -943,6 +1247,35 @@ function prepareReturnFromTable(
 =================================== */
 
 
+function openReaderScanner() {
+
+  scannerMode =
+    'reader';
+
+
+  document.getElementById(
+    'scannerTitle'
+  ).textContent =
+    'Digitalizar Leitor';
+
+
+  document.getElementById(
+    'scannerDescription'
+  ).textContent =
+    'Aponte a câmara para o QR do cartão do leitor.';
+
+
+  document.getElementById(
+    'scannerHelpText'
+  ).innerHTML =
+    'O QR deve conter um código como <strong>LEI-000001</strong>.';
+
+
+  openCirculationScanner();
+}
+
+
+
 function openLoanScanner() {
 
   scannerMode =
@@ -952,7 +1285,19 @@ function openLoanScanner() {
   document.getElementById(
     'scannerTitle'
   ).textContent =
-    'Digitalizar para Empréstimo';
+    'Digitalizar Exemplar';
+
+
+  document.getElementById(
+    'scannerDescription'
+  ).textContent =
+    'Aponte a câmara para o QR da etiqueta do livro.';
+
+
+  document.getElementById(
+    'scannerHelpText'
+  ).innerHTML =
+    'O QR deve conter um código como <strong>EXE-000001</strong>.';
 
 
   openCirculationScanner();
@@ -969,7 +1314,19 @@ function openReturnScanner() {
   document.getElementById(
     'scannerTitle'
   ).textContent =
-    'Digitalizar para Devolução';
+    'Digitalizar Devolução';
+
+
+  document.getElementById(
+    'scannerDescription'
+  ).textContent =
+    'Aponte a câmara para o QR do exemplar devolvido.';
+
+
+  document.getElementById(
+    'scannerHelpText'
+  ).innerHTML =
+    'O QR deve conter um código como <strong>EXE-000001</strong>.';
 
 
   openCirculationScanner();
@@ -995,21 +1352,9 @@ function openCirculationScanner() {
     'undefined'
   ) {
 
-    if (scannerMode === 'loan') {
-
-      showLoanMessage(
-        'O leitor QR não foi carregado.',
-        'error'
-      );
-
-    } else {
-
-      showReturnMessage(
-        'O leitor QR não foi carregado.',
-        'error'
-      );
-    }
-
+    showScannerError(
+      'O leitor QR não foi carregado.'
+    );
 
     closeCirculationScanner();
 
@@ -1037,7 +1382,11 @@ function openCirculationScanner() {
         qrbox: {
           width: 260,
           height: 260
-        }
+        },
+
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
       },
 
       async decodedText => {
@@ -1053,7 +1402,57 @@ function openCirculationScanner() {
         }
 
 
+        /*
+         * Filtrar para evitar
+         * QR de tipo errado.
+         */
+
+        if (
+          scannerMode ===
+          'reader' &&
+          !code.startsWith(
+            'LEI-'
+          )
+        ) {
+
+          return;
+        }
+
+
+        if (
+          (
+            scannerMode ===
+            'loan' ||
+            scannerMode ===
+            'return'
+          ) &&
+          !code.startsWith(
+            'EXE-'
+          )
+        ) {
+
+          return;
+        }
+
+
         await closeCirculationScanner();
+
+
+        if (
+          scannerMode ===
+          'reader'
+        ) {
+
+          document.getElementById(
+            'readerCode'
+          ).value =
+            code;
+
+
+          await findReaderByCode();
+
+          return;
+        }
 
 
         if (
@@ -1069,8 +1468,14 @@ function openCirculationScanner() {
 
           await findLoanCopy();
 
+          return;
+        }
 
-        } else {
+
+        if (
+          scannerMode ===
+          'return'
+        ) {
 
           document.getElementById(
             'returnCopyCode'
@@ -1083,7 +1488,7 @@ function openCirculationScanner() {
       },
 
       () => {
-        // Ignorar tentativas sem leitura.
+        // Leituras sem resultado são normais.
       }
 
     )
@@ -1099,27 +1504,38 @@ function openCirculationScanner() {
         false;
 
 
-      if (
-        scannerMode ===
-        'loan'
-      ) {
-
-        showLoanMessage(
-          'Não foi possível abrir a câmara. Verifique as permissões.',
-          'error'
-        );
-
-      } else {
-
-        showReturnMessage(
-          'Não foi possível abrir a câmara. Verifique as permissões.',
-          'error'
-        );
-      }
+      showScannerError(
+        'Não foi possível abrir a câmara. Verifique as permissões do navegador.'
+      );
 
 
       closeCirculationScanner();
     });
+}
+
+
+
+function showScannerError(
+  message
+) {
+
+  if (
+    scannerMode ===
+    'return'
+  ) {
+
+    showReturnMessage(
+      message,
+      'error'
+    );
+
+  } else {
+
+    showLoanMessage(
+      message,
+      'error'
+    );
+  }
 }
 
 
@@ -1135,9 +1551,7 @@ async function closeCirculationScanner() {
 
       await circulationScanner.stop();
 
-    } catch (err) {
-      // Ignorar
-    }
+    } catch (err) {}
   }
 
 
@@ -1156,6 +1570,7 @@ async function closeCirculationScanner() {
 
 
   if (reader) {
+
     reader.innerHTML = '';
   }
 
@@ -1178,8 +1593,22 @@ function clearLoanForm(
   clearMessage = true
 ) {
 
+  selectedReader =
+    null;
+
+
   selectedCopy =
     null;
+
+
+  document.getElementById(
+    'readerCode'
+  ).value = '';
+
+
+  document.getElementById(
+    'loanReader'
+  ).value = '';
 
 
   document.getElementById(
@@ -1187,9 +1616,9 @@ function clearLoanForm(
   ).value = '';
 
 
-  document.getElementById(
-    'loanReader'
-  ).value = '';
+  hideElement(
+    'readerPreview'
+  );
 
 
   hideElement(
@@ -1285,7 +1714,9 @@ function showReturnMessage(
 
 
 
-function hideElement(id) {
+function hideElement(
+  id
+) {
 
   const el =
     document.getElementById(
@@ -1326,7 +1757,9 @@ function formatClientDate(
 
 
   const date =
-    new Date(value);
+    new Date(
+      value
+    );
 
 
   if (
@@ -1381,7 +1814,8 @@ function isLoanOverdue(
   }
 
 
-  return due < new Date();
+  return due <
+    new Date();
 }
 
 
@@ -1393,26 +1827,11 @@ function escapeCirculationHtml(
   return String(
     value ?? ''
   )
-  .replaceAll(
-    '&',
-    '&amp;'
-  )
-  .replaceAll(
-    '<',
-    '&lt;'
-  )
-  .replaceAll(
-    '>',
-    '&gt;'
-  )
-  .replaceAll(
-    '"',
-    '&quot;'
-  )
-  .replaceAll(
-    "'",
-    '&#039;'
-  );
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
 }
 
 
